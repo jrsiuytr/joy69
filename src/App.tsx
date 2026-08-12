@@ -2,11 +2,12 @@ import xIcon from './images/x.svg';
 import telegramIcon from './images/telegram-svgrepo-com.svg';
 import discordIcon from './images/discord-communication-interaction-message-network-svgrepo-com.svg';
 import { HeroSection } from './components/HeroSection';
+import { Spotlight3DSection } from './components/Spotlight3DSection';
 import { MarqueeSection } from './components/MarqueeSection';
 import { AboutSection } from './components/AboutSection';
 import { ServicesSection } from './components/ServicesSection';
 import { ProjectsSection } from './components/ProjectsSection';
-import { SpiderWebBackground } from './components/SpiderWebBackground';
+import { SpiderManVenomBackground } from './components/SpiderManVenomBackground';
 import { FadeIn } from './components/FadeIn';
 import { ContactButton } from './components/ContactButton';
 import { Mail } from 'lucide-react';
@@ -14,11 +15,14 @@ import { Mail } from 'lucide-react';
 export function App() {
   return (
     <div className="w-full bg-[#08080E] min-h-screen text-[#D7E2EA] overflow-x-clip font-['Kanit',sans-serif] relative">
-      {/* Spider Web SVG Background Theme */}
-      <SpiderWebBackground />
+      {/* Spider-Man vs Venom Symbiote Scroll Background Theme */}
+      <SpiderManVenomBackground />
 
       {/* 1. Hero Section */}
       <HeroSection />
+
+      {/* Spotlight 3D Gallery Section */}
+      <Spotlight3DSection />
 
       {/* 2. Marquee Section */}
       <MarqueeSection />

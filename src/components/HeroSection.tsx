@@ -130,8 +130,8 @@ export const HeroSection: React.FC = () => {
         </FadeIn>
       </div>
 
-      {/* SINGLE UNIFIED ASSEMBLY: Web Rope + Spider-Man scaled together */}
-      <div className="fixed inset-0 pointer-events-none z-40 overflow-hidden">
+      {/* SINGLE UNIFIED ASSEMBLY: Web Rope + Spider-Man scaled together inside Viewport */}
+      <div className="fixed inset-0 pointer-events-none z-30 overflow-visible">
         <div
           className="absolute flex flex-col items-center transition-all duration-200 ease-out pointer-events-none origin-top"
           style={{
