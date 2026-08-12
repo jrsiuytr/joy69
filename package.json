@@ -1,8 +1,20 @@
 {
-  "name": "let-s-go-69",
+  "name": "Joy Portfolio",
+  "version": "0.0.1",
   "private": true,
-  "version": "0.0.0",
+  "description": "Welcome to my portflio.",
+  "homepage": "https://github.com/mrarindam/joy69#readme",
+  "bugs": {
+    "url": "https://github.com/mrarindam/joy69/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrarindam/joy69.git"
+  },
+  "license": "ISC",
+  "author": "",
   "type": "module",
+  "main": "postcss.config.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

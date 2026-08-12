@@ -67,3 +67,17 @@ html, body, #root {
   background: linear-gradient(180deg, #EF4444 0%, #1E40AF 100%);
 }
 
+/* 3D Kinetic Typography Utilities */
+.rotate-x-90 {
+  transform: rotateX(90deg);
+}
+
+.-rotate-x-90 {
+  transform: rotateX(-90deg);
+}
+
+.rotate-x-0 {
+  transform: rotateX(0deg);
+}
+
+

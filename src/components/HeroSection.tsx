@@ -1,21 +1,35 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, useScroll, useSpring } from 'framer-motion';
 import { FadeIn } from './FadeIn';
 import { Magnet } from './Magnet';
 import { ContactButton } from './ContactButton';
+import { KineticTextFlip } from './KineticTextFlip';
 import spidermanImg from '../images/spiderman.png';
 
 export const HeroSection: React.FC = () => {
-  const [scrollY, setScrollY] = useState(0);
-  const [scrollDir, setScrollDir] = useState<'up' | 'down' | 'idle'>('idle');
   const [showWebNet, setShowWebNet] = useState(false);
 
-  const lastScrollY = useRef(0);
   const isScrollingRef = useRef(false);
   const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const netHideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Framer Motion motion values for 60fps GPU rope bending (ZERO React re-renders on mousemove!)
+  // Framer Motion continuous scroll progress across entire document
+  const { scrollYProgress } = useScroll();
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 140,
+    damping: 26,
+    restDelta: 0.0001,
+  });
+
+  // Smooth continuous metric transforms across page scroll (Hero -> Footer)
+  const spiderLeft = useTransform(smoothProgress, [0, 0.85, 1], ['50%', '82%', '82%']);
+  const ropeHeightVh = useTransform(smoothProgress, [0, 0.35, 1], [44, 58, 62]);
+  const ropeHeightPx = useTransform(ropeHeightVh, (v) => `${v}vh`);
+  const spiderScale = useTransform(smoothProgress, [0, 0.35, 1], [1.0, 0.58, 0.52]);
+  const footerLift = useTransform(smoothProgress, [0.85, 1], [0, 140]);
+  const footerY = useTransform(footerLift, (v) => -v);
+
+  // 60fps GPU rope bending motion values (ZERO React re-renders on mousemove!)
   const ropeBendX = useMotionValue(12);
   const ropeBendY = useMotionValue(50);
   const ropeBendXPlus = useTransform(ropeBendX, (x) => x + 6);
@@ -43,17 +57,6 @@ export const HeroSection: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setScrollY(currentScrollY);
-
-      // Detect scroll direction (down vs up)
-      if (currentScrollY > lastScrollY.current + 3) {
-        setScrollDir('down');
-      } else if (currentScrollY < lastScrollY.current - 3) {
-        setScrollDir('up');
-      }
-      lastScrollY.current = currentScrollY;
-
       // Toggle web net burst only once when scroll starts to avoid state spam
       if (!isScrollingRef.current) {
         isScrollingRef.current = true;
@@ -66,7 +69,6 @@ export const HeroSection: React.FC = () => {
       // When scroll stops after 150ms of stillness
       scrollTimeoutRef.current = setTimeout(() => {
         isScrollingRef.current = false;
-        setScrollDir('idle');
         // Hold movie web net for 800ms, then vanish
         netHideTimeoutRef.current = setTimeout(() => {
           setShowWebNet(false);
@@ -88,22 +90,6 @@ export const HeroSection: React.FC = () => {
     ropeBendY.set(50 + pos.y * 0.25);
   };
 
-  // Compute smooth continuous scroll metrics
-  const scrollRatio = Math.min(1, scrollY / 400);
-
-  // Position: starts centered in hero (50%), moves smoothly to right (82%) when scrolling down
-  const spiderLeft = 50 + scrollRatio * 32;
-
-  // Vertical rope length (vh): from top ceiling down to Spider-Man
-  const ropeHeightVh = 44 + scrollRatio * 16;
-
-  // Scale: starts at 1.0 in hero, smoothly shrinks to 0.52 when scrolling down to avoid blocking content
-  const spiderScale = 1 - scrollRatio * 0.48;
-
-  // Rotation swing physics: leans in scroll direction
-  const spiderRotate =
-    scrollDir === 'down' ? -7 : scrollDir === 'up' ? 7 : 0;
-
   return (
     <section className="relative h-screen w-full flex flex-col justify-between overflow-x-clip bg-transparent">
       {/* Navbar */}
@@ -113,9 +99,9 @@ export const HeroSection: React.FC = () => {
             <a
               key={link.label}
               href={link.href}
-              className="text-[#D7E2EA] font-medium uppercase tracking-wider text-sm md:text-lg lg:text-[1.4rem] hover:opacity-70 transition-opacity duration-200"
+              className="group text-[#D7E2EA] font-medium uppercase tracking-wider text-sm md:text-lg lg:text-[1.4rem] hover:opacity-100 transition-opacity duration-200"
             >
-              {link.label}
+              <KineticTextFlip text={link.label} />
             </a>
           ))}
         </nav>
@@ -130,14 +116,15 @@ export const HeroSection: React.FC = () => {
         </FadeIn>
       </div>
 
-      {/* SINGLE UNIFIED ASSEMBLY: Web Rope + Spider-Man scaled together inside Viewport */}
+      {/* SINGLE UNIFIED ASSEMBLY: Web Rope + Spider-Man scaled together inside Viewport (Framer Motion 60FPS GPU) */}
       <div className="fixed inset-0 pointer-events-none z-30 overflow-visible">
-        <div
-          className="absolute flex flex-col items-center transition-all duration-200 ease-out pointer-events-none origin-top"
+        <motion.div
+          className="absolute flex flex-col items-center pointer-events-none origin-top"
           style={{
-            left: `${spiderLeft}%`,
-            top: '0px',
-            transform: `translateX(-50%) scale(${spiderScale}) rotate(${spiderRotate}deg)`,
+            left: spiderLeft,
+            y: footerY,
+            x: '-50%',
+            scale: spiderScale,
           }}
         >
           {/* Expanded interaction Magnet wrapper: large padding & smooth mouse movement */}
@@ -150,9 +137,9 @@ export const HeroSection: React.FC = () => {
             className="flex flex-col items-center relative overflow-visible"
           >
             {/* 1. Realistic Multi-Strand Movie Web Rope: Bends dynamically via MotionValues (0 React re-renders!) */}
-            <div
-              className="w-10 flex justify-center transition-all duration-150 relative z-0 -mb-10 sm:-mb-14 md:-mb-20"
-              style={{ height: `${ropeHeightVh}vh` }}
+            <motion.div
+              className="w-10 flex justify-center relative z-0 -mb-10 sm:-mb-14 md:-mb-20"
+              style={{ height: ropeHeightPx }}
             >
               <svg
                 className="w-full h-full overflow-visible"
@@ -212,7 +199,7 @@ export const HeroSection: React.FC = () => {
                   vectorEffect="non-scaling-stroke"
                 />
               </svg>
-            </div>
+            </motion.div>
 
             {/* 2. Spider-Man Character: Sits DIRECTLY over the rope, hiding the bottom 140px behind his center back */}
             <div className="relative z-10 flex items-center justify-center">
@@ -269,7 +256,7 @@ export const HeroSection: React.FC = () => {
               </div>
             </div>
           </Magnet>
-        </div>
+        </motion.div>
       </div>
 
       {/* Bottom Bar */}

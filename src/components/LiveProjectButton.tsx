@@ -1,4 +1,5 @@
 import React from 'react';
+import { KineticTextFlip } from './KineticTextFlip';
 
 interface LiveProjectButtonProps {
   href?: string;
@@ -17,9 +18,10 @@ export const LiveProjectButton: React.FC<LiveProjectButtonProps> = ({
       target="_blank"
       rel="noopener noreferrer"
       onClick={onClick}
-      className={`inline-block rounded-full border-2 border-[#D7E2EA] text-[#D7E2EA] font-medium uppercase tracking-widest px-8 py-3 sm:px-10 sm:py-3.5 text-sm sm:text-base hover:bg-[#D7E2EA]/10 transition-colors duration-200 cursor-pointer ${className}`}
+      className={`group inline-block rounded-full border-2 border-[#D7E2EA] text-[#D7E2EA] font-medium uppercase tracking-widest px-8 py-3 sm:px-10 sm:py-3.5 text-sm sm:text-base hover:bg-[#D7E2EA]/10 transition-colors duration-200 cursor-pointer overflow-hidden ${className}`}
     >
-      Project's Website
+      <KineticTextFlip text="Project's Website" />
     </a>
   );
 };
+

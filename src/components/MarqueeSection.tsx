@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ExternalLink, RotateCcw, Sparkles } from 'lucide-react';
+import { KineticTextFlip } from './KineticTextFlip';
 
 import gtaviImg from '../images/games/gta6.jpg';
 import fc27Img from '../images/games/fc27.webp';
@@ -30,7 +31,7 @@ export interface MarqueeItem {
   link: string;
 }
 
-export const marqueeItemsData: MarqueeItem[] = [
+const marqueeItemsData: MarqueeItem[] = [
   {
     id: '1',
     image: gtaviImg,
@@ -269,9 +270,9 @@ const MarqueeCard: React.FC<MarqueeCardProps> = ({ item }) => {
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-xs sm:text-sm shadow-lg shadow-purple-600/25 hover:shadow-purple-500/40 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+              className="group w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-xs sm:text-sm shadow-lg shadow-purple-600/25 hover:shadow-purple-500/40 transition-all transform hover:-translate-y-0.5 active:translate-y-0 overflow-hidden"
             >
-              <span>Visit Website / Game</span>
+              <KineticTextFlip text="Visit Website / Game" />
               <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </a>
           </div>
