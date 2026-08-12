@@ -40,15 +40,18 @@ export const SpiderManVenomBackground: React.FC = () => {
     window.addEventListener('mousemove', handleMouseMove);
     handleScroll();
 
-    // 1. Falling Soft Embers (Venom Poster Reference)
+    const isMobile = window.innerWidth < 640;
+
+    // 1. Falling Soft Embers (Reduced count on Mobile for performance & clean visuals)
+    const emberCount = isMobile ? 8 : 40;
     const embers: { x: number; y: number; vy: number; vx: number; size: number; alpha: number }[] = [];
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < emberCount; i++) {
       embers.push({
         x: Math.random() * width,
         y: Math.random() * height,
         vy: 1.2 + Math.random() * 2.2,
         vx: (Math.random() - 0.4) * 0.8,
-        size: 1.2 + Math.random() * 2.0,
+        size: isMobile ? 1.0 + Math.random() * 1.2 : 1.2 + Math.random() * 2.0,
         alpha: 0.3 + Math.random() * 0.5,
       });
     }
@@ -82,8 +85,8 @@ export const SpiderManVenomBackground: React.FC = () => {
       // B. ELEGANT SPIDER-MAN WEB MESH (Radiating cleanly behind Hero text)
       const centerX = width * 0.48;
       const centerY = height * 0.42;
-      const numRays = 16;
-      const numRings = 7;
+      const numRays = isMobile ? 10 : 16;
+      const numRings = isMobile ? 4 : 7;
       const maxRadius = Math.max(width, height) * 0.65;
 
       ctx.save();
@@ -105,8 +108,10 @@ export const SpiderManVenomBackground: React.FC = () => {
 
         ctx.strokeStyle = i % 2 === 0 ? `rgba(239, 68, 68, ${webAlpha})` : `rgba(56, 189, 248, ${webAlpha})`;
         ctx.lineWidth = 1.2;
-        ctx.shadowColor = i % 2 === 0 ? '#ef4444' : '#38bdf8';
-        ctx.shadowBlur = 8;
+        if (!isMobile) {
+          ctx.shadowColor = i % 2 === 0 ? '#ef4444' : '#38bdf8';
+          ctx.shadowBlur = 8;
+        }
 
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
@@ -152,7 +157,7 @@ export const SpiderManVenomBackground: React.FC = () => {
         ctx.save();
         ctx.globalAlpha = symbioteAlpha;
 
-        const numTendrils = 10;
+        const numTendrils = isMobile ? 4 : 10;
         for (let t = 0; t < numTendrils; t++) {
           const isTop = t % 2 === 0;
           const startX = (t / numTendrils) * width;
@@ -167,9 +172,11 @@ export const SpiderManVenomBackground: React.FC = () => {
 
           // Outer Deep Blue/Red Neon Edge Glow
           ctx.strokeStyle = t % 2 === 0 ? 'rgba(37, 99, 235, 0.5)' : 'rgba(220, 38, 38, 0.5)';
-          ctx.shadowColor = t % 2 === 0 ? '#0284c7' : '#ef4444';
-          ctx.shadowBlur = 14;
-          ctx.lineWidth = 14;
+          if (!isMobile) {
+            ctx.shadowColor = t % 2 === 0 ? '#0284c7' : '#ef4444';
+            ctx.shadowBlur = 14;
+          }
+          ctx.lineWidth = isMobile ? 8 : 14;
           ctx.lineCap = 'round';
 
           ctx.beginPath();
@@ -180,7 +187,7 @@ export const SpiderManVenomBackground: React.FC = () => {
           // Inner Viscous Black Symbiote Core
           ctx.strokeStyle = '#050711';
           ctx.shadowBlur = 0;
-          ctx.lineWidth = 10;
+          ctx.lineWidth = isMobile ? 5 : 10;
           ctx.beginPath();
           ctx.moveTo(startX, startY);
           ctx.quadraticCurveTo(cpX, cpY, endX, endY);
@@ -212,8 +219,10 @@ export const SpiderManVenomBackground: React.FC = () => {
 
         ctx.strokeStyle = streakGrad;
         ctx.lineWidth = ember.size;
-        ctx.shadowColor = '#ef4444';
-        ctx.shadowBlur = 6;
+        if (!isMobile) {
+          ctx.shadowColor = '#ef4444';
+          ctx.shadowBlur = 6;
+        }
 
         ctx.beginPath();
         ctx.moveTo(ember.x, ember.y);

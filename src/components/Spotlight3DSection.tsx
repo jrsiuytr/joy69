@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { ExternalLink, Sparkles, MoveLeft, MoveRight, Flame } from 'lucide-react';
+import { ExternalLink, Flame, Sparkles } from 'lucide-react';
+import { KineticTextFlip } from './KineticTextFlip';
 import utexo1Img from '../images/utexo1.png';
 import bloomImg from '../images/bloom1.png';
 import naoxevm from '../images/naoxevm.jpg';
@@ -21,65 +22,65 @@ interface ApeItem {
 
 const apeItems: ApeItem[] = [
   {
-    id: 'utexo',
-    title: 'UTEXO PROTOCOL',
-    category: 'Bitcoin-native execution and settlement layer',
-    tag: 'api layer',
-    description: 'The protocol that allows developers to build next-generation applications on Bitcoin.',
+    id: 'otherside',
+    title: 'OTHERSIDE',
+    category: 'GAMES',
+    tag: 'HOT',
+    description: 'WEB3-ENABLED VIRTUAL WORLDS ON APECHAIN',
     image: utexo1Img,
     link: 'https://utexo.com/',
   },
   {
     id: 'relay',
-    title: 'Relay',
-    category: 'Swap & Bridge',
-    tag: 'FAST & SECURE',
-    description: 'Fast, secure, and low-cost swaps and bridges across multiple blockchains.',
+    title: 'RELAY LINK',
+    category: 'SWAP & BRIDGE',
+    tag: 'FAST',
+    description: 'LOW-COST SWAPS & BRIDGES ACROSS CHAINS',
     image: relay,
     link: 'https://relay.link/',
   },
   {
-    id: 'Debank',
-    title: 'DeBank',
-    category: 'Web3 Wallet & DeFi Portfolio Tracker',
-    tag: 'TRACKER',
-    description: 'Decentralized Web3 wallet and DeFi portfolio tracker with real-time market data and analytics.',
+    id: 'debank',
+    title: 'DEBANK DEFI',
+    category: 'TRACKER',
+    tag: 'WALLETS',
+    description: 'WEB3 PORTFOLIO TRACKER & REAL-TIME ANALYTICS',
     image: naoxevm,
     link: 'https://debank.com/',
   },
   {
     id: 'opensea',
-    title: 'Opensea',
-    category: 'nft marketplace',
-    tag: 'MARKETPLACE',
-    description: 'The most comprehensive NFT marketplace with latest and new nfts listed every day',
+    title: 'OPENSEA HUB',
+    category: 'MARKETPLACE',
+    tag: 'NFTs',
+    description: 'PREMIER WEB3 NFT MARKETPLACE & TRADING HUB',
     image: bloomImg,
     link: 'https://opensea.io/',
   },
   {
     id: 'arc',
-    title: 'ARC',
-    category: 'L1',
-    tag: 'STABLECOIN',
-    description: 'Build real-world finance onchain',
+    title: 'ARC PROTOCOL',
+    category: 'STABLECOIN',
+    tag: 'FINANCE',
+    description: 'BUILD REAL-WORLD FINANCE ONCHAIN',
     image: spidermanImg,
     link: 'https://www.arc.io/',
   },
   {
-    id: 'Broski',
-    title: 'Arindam',
-    category: 'Developer',
-    tag: 'MAGICAL',
-    description: 'Frontend and Blockchain Magician',
+    id: 'arindam',
+    title: 'ARINDAM DEV',
+    category: 'CREATOR',
+    tag: 'DEVELOPER',
+    description: '3D WEB EXPERIENCES & FRONTEND ARCHITECTURE',
     image: arindam,
     link: 'https://www.mrarindam.xyz',
   },
   {
     id: 'base',
-    title: 'BASE',
-    category: 'L2',
-    tag: 'BLOCKCHAIN',
-    description: 'Base is the best layer-2 chain for building the next generation of applications.',
+    title: 'BASE NETWORK',
+    category: 'LAYER 2',
+    tag: 'ECOSYSTEM',
+    description: 'THE BEST LAYER-2 CHAIN FOR WEB3 APPLICATIONS',
     image: cyberpunkImg,
     link: 'https://www.base.org/',
   },
@@ -111,27 +112,31 @@ export const Spotlight3DSection: React.FC = () => {
     let width = mount.clientWidth;
     let height = mount.clientHeight;
 
+    const isMobile = window.innerWidth < 640;
+    const isTablet = window.innerWidth >= 640 && window.innerWidth < 1024;
+
+    const cylinderRadius = isMobile ? 4.8 : isTablet ? 6.2 : 7.6;
+    const cardHeight = isMobile ? 3.0 : isTablet ? 3.8 : 4.4;
+    const cameraZ = isMobile ? 7.2 : isTablet ? 8.0 : 8.8;
+    const cameraX = isMobile ? 0 : -0.6;
+
     // 1. WebGL Scene, Camera, Renderer
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
-    camera.position.set(0, 0, 8.4);
+    const camera = new THREE.PerspectiveCamera(isMobile ? 42 : 35, width / height, 0.1, 100);
+    camera.position.set(cameraX, 0.1, cameraZ);
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     mount.appendChild(renderer.domElement);
 
-    // 2. Specular Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+    // 2. Clean Natural Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 2.4);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0x38bdf8, 2.8);
-    dirLight.position.set(6, 12, 8);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    dirLight.position.set(0, 8, 10);
     scene.add(dirLight);
-
-    const redLight = new THREE.DirectionalLight(0xef4444, 1.8);
-    redLight.position.set(-6, -6, 6);
-    scene.add(redLight);
 
     // 3. Texture Loader & Main 3D Card Group
     const textureLoader = new THREE.TextureLoader();
@@ -139,11 +144,9 @@ export const Spotlight3DSection: React.FC = () => {
     scene.add(deckGroup);
 
     const cardMeshes: THREE.Mesh[] = [];
-    const cylinderRadius = 6.4;
-    const cardHeight = 3.3;
-    const arcLength = 0.78; // ~45 deg arc per card for larger presentation
+    const arcLength = isMobile ? 0.95 : 0.88;
 
-    // Create True Cylindrical Arc Mesh Geometry (Clean UV Orientation)
+    // Create True Cylindrical Arc Mesh Geometry
     const createCylindricalArcGeometry = () => {
       const geo = new THREE.CylinderGeometry(
         cylinderRadius,
@@ -156,7 +159,6 @@ export const Spotlight3DSection: React.FC = () => {
         arcLength
       );
 
-      // Translate geometry so origin is at cylinder center
       geo.translate(0, 0, -cylinderRadius);
       geo.computeVertexNormals();
       return geo;
@@ -170,12 +172,13 @@ export const Spotlight3DSection: React.FC = () => {
       texture.colorSpace = THREE.SRGBColorSpace;
       texture.minFilter = THREE.LinearFilter;
       texture.magFilter = THREE.LinearFilter;
+      texture.generateMipmaps = true;
 
       const material = new THREE.MeshStandardMaterial({
         map: texture,
-        roughness: 0.15,
-        metalness: 0.25,
-        side: THREE.FrontSide, // Crisp right-side up rendering!
+        roughness: 1.0,
+        metalness: 0.0,
+        side: THREE.FrontSide,
       });
 
       const mesh = new THREE.Mesh(sharedGeo, material);
@@ -185,19 +188,19 @@ export const Spotlight3DSection: React.FC = () => {
       cardMeshes.push(mesh);
     });
 
-    // 4. Smooth WebGL Render & Transform Update (Zero Flickering / Zero Blinking!)
+    // 4. Smooth WebGL Render & Transform Update
     const updateWebGLTransforms = () => {
       const currRot = rotationYRef.current;
       let nearestIdx = 0;
       let minDiff = Infinity;
 
-      // Mouse Parallax Tilt Smoothing
+      // Mouse Parallax Tilt Easing
       mouseRef.current.x += (targetMouseRef.current.x - mouseRef.current.x) * 0.05;
       mouseRef.current.y += (targetMouseRef.current.y - mouseRef.current.y) * 0.05;
 
-      // ApeChain Slanted 3D Mouse Tilt
-      deckGroup.rotation.x = 0.16 + mouseRef.current.y * 0.12;
-      deckGroup.rotation.y = mouseRef.current.x * 0.18;
+      // 3D Slanted Tilt
+      deckGroup.rotation.x = 0.12 + mouseRef.current.y * 0.08;
+      deckGroup.rotation.y = mouseRef.current.x * 0.12;
 
       cardMeshes.forEach((mesh, idx) => {
         const baseAngle = idx * angleStep;
@@ -211,7 +214,7 @@ export const Spotlight3DSection: React.FC = () => {
 
         // Rotation around drum center
         mesh.rotation.y = angle;
-        mesh.rotation.z = Math.sin(angle) * 0.04;
+        mesh.rotation.z = Math.sin(angle) * 0.03;
 
         // Calculate front active card
         let normAngle = angle % (Math.PI * 2);
@@ -226,11 +229,13 @@ export const Spotlight3DSection: React.FC = () => {
 
         // Depth scale
         const normZ = (z + cylinderRadius) / cylinderRadius;
-        const scale = Math.max(0.65, 0.76 + normZ * 0.34);
+        const minScale = isMobile ? 0.72 : 0.68;
+        const maxScaleBonus = isMobile ? 0.28 : 0.36;
+        const scale = Math.max(minScale, 0.76 + normZ * maxScaleBonus);
         mesh.scale.set(scale, scale, scale);
       });
 
-      // ONLY update React state when active card changes (Eliminates all flickering & blinking!)
+      // ONLY update React state when active card changes
       if (nearestIdx !== activeIndexRef.current) {
         activeIndexRef.current = nearestIdx;
         setActiveIndex(nearestIdx);
@@ -243,7 +248,7 @@ export const Spotlight3DSection: React.FC = () => {
       if (!isDraggingRef.current) {
         const diff = targetRotationYRef.current - rotationYRef.current;
         if (Math.abs(diff) > 0.0001) {
-          rotationYRef.current += diff * 0.075; // Ultra-smooth inertia easing!
+          rotationYRef.current += diff * 0.08;
         }
       }
 
@@ -264,7 +269,14 @@ export const Spotlight3DSection: React.FC = () => {
       if (!mount) return;
       width = mount.clientWidth;
       height = mount.clientHeight;
+
+      const mobile = window.innerWidth < 640;
+      const tablet = window.innerWidth >= 640 && window.innerWidth < 1024;
+
       camera.aspect = width / height;
+      camera.fov = mobile ? 42 : 35;
+      camera.position.z = mobile ? 7.2 : tablet ? 8.0 : 8.8;
+      camera.position.x = mobile ? 0 : -0.6;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
     };
@@ -281,14 +293,14 @@ export const Spotlight3DSection: React.FC = () => {
       }
       renderer.dispose();
     };
-  }, []);
+  }, [angleStep]);
 
   // Smooth Pointer Drag Handlers
   useEffect(() => {
     const handlePointerMove = (e: PointerEvent) => {
       if (!isDraggingRef.current) return;
       const dx = e.clientX - lastXRef.current;
-      velocityRef.current = dx * 0.004;
+      velocityRef.current = dx * 0.0035;
       rotationYRef.current += velocityRef.current;
       targetRotationYRef.current = rotationYRef.current;
       lastXRef.current = e.clientX;
@@ -316,12 +328,8 @@ export const Spotlight3DSection: React.FC = () => {
     velocityRef.current = 0;
   };
 
-  // Ultra-Smooth Target Rotation Adjustment (Zero Glitch Arrow Buttons & Thumbnails!)
   const selectCard = (index: number) => {
-    // Calculate shortest angular rotation distance
     let targetAngle = -index * angleStep;
-
-    // Normalize target angle relative to current rotation to prevent spinning 360 degrees
     const currentRot = rotationYRef.current;
     const diff = (targetAngle - currentRot) % (Math.PI * 2);
     let shortestDiff = diff;
@@ -336,115 +344,156 @@ export const Spotlight3DSection: React.FC = () => {
   return (
     <section
       id="spotlight-3d"
-      className="relative z-10 w-full min-w-full px-4 sm:px-8 py-6 sm:py-10 text-[#D7E2EA] overflow-x-clip select-none bg-transparent"
+      className="relative z-10 w-full min-w-full overflow-hidden select-none bg-transparent py-4 sm:py-8"
     >
-      {/* ApeChain Topographic Contour Overlay */}
-      <div className="absolute inset-0 pointer-events-none opacity-20 flex items-center justify-center overflow-hidden">
-        <svg className="w-[900px] h-[900px] text-cyan-400/40" viewBox="0 0 1000 1000" fill="none" stroke="currentColor" strokeWidth="1.2">
-          <circle cx="500" cy="500" r="160" strokeDasharray="6 6" />
-          <circle cx="500" cy="500" r="280" />
-          <circle cx="500" cy="500" r="400" strokeDasharray="12 8" />
-          <circle cx="500" cy="500" r="520" />
-        </svg>
-      </div>
+      {/* 3D WebGL Canvas Container */}
+      <div className="relative w-full h-[340px] sm:h-[580px] lg:h-[680px] flex items-center justify-center">
 
-      {/* Ambient Radial Glow - Sized smoothly to avoid box edge clipping */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
-
-      {/* Main Container */}
-      <div className="max-w-7xl mx-auto flex flex-col items-center justify-center min-h-0 relative z-10">
-
-        {/* THREE.JS WebGL Canvas Container */}
+        {/* THREE.JS 3D WebGL Canvas (Full Width) */}
         <div
           ref={mountRef}
-          className="relative w-full h-[400px] sm:h-[480px] md:h-[520px] flex items-center justify-center cursor-grab active:cursor-grabbing touch-none"
+          className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing touch-none z-10"
           onPointerDown={handlePointerDown}
         />
 
-        {/* Floating Active Info Panel Below Canvas */}
-        <div className="mt-2 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 bg-[#0A0D18]/90 border border-cyan-500/30 p-3.5 sm:p-4 rounded-2xl backdrop-blur-xl shadow-[0_0_30px_rgba(6,182,212,0.22)] max-w-xl w-full justify-between z-20">
-          <div>
-            <div className="flex items-center gap-2 mb-0.5">
-              <Flame className="w-4 h-4 text-rose-500 animate-pulse" />
-              <span className="px-2.5 py-0.5 rounded text-[10px] font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 font-bold uppercase">
-                {activeItem.tag}
-              </span>
-              <span className="text-xs font-mono text-white/60">{activeItem.category}</span>
-            </div>
-            <h3 className="text-base sm:text-lg font-bold uppercase text-white tracking-tight">
-              {activeItem.title}
-            </h3>
-            <p className="text-xs text-[#D7E2EA]/75 font-light line-clamp-1 mt-0.5">
-              {activeItem.description}
-            </p>
+
+
+        {/* DESKTOP OVERLAYS (hidden on mobile, visible on sm and up) */}
+        <div className="hidden sm:flex absolute bottom-8 left-10 lg:left-16 z-20 max-w-xl pointer-events-auto flex-col items-start">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2.5 py-0.5 rounded bg-gradient-to-r from-red-600 via-rose-500 to-amber-500 text-white font-black text-[11px] font-mono flex items-center gap-1 shadow-[0_0_12px_rgba(239,68,68,0.6)] uppercase">
+              <Flame className="w-3.5 h-3.5 fill-white" /> {activeItem.tag}
+            </span>
+            <span className="px-2.5 py-0.5 rounded text-[11px] font-mono text-cyan-300 bg-cyan-950/80 border border-cyan-500/30 font-bold uppercase tracking-widest">
+              {activeItem.category}
+            </span>
           </div>
 
-          <div className="flex items-center gap-3 flex-shrink-0">
-            {activeItem.link !== '#' ? (
-              <a
-                href={activeItem.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs font-mono uppercase tracking-wider transition-all duration-300 shadow-[0_0_25px_rgba(6,182,212,0.4)] flex items-center gap-1.5 hover:scale-105"
-              >
-                Visit Site <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            ) : (
-              <button
-                disabled
-                className="px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-white/10 text-white/40 font-mono text-xs uppercase flex items-center gap-1 cursor-not-allowed"
-              >
-                Preview <Sparkles className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
+          <h2 className="hero-heading text-5xl lg:text-7xl font-black uppercase tracking-tighter drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] leading-none my-1 font-['Kanit',sans-serif]">
+            {activeItem.title}
+          </h2>
+
+          <p className="text-xs md:text-sm font-semibold uppercase tracking-wider text-cyan-200/90 drop-shadow-md mb-4 max-w-md">
+            {activeItem.description}
+          </p>
+
+          {activeItem.link !== '#' ? (
+            <a
+              href={activeItem.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group px-8 py-3 rounded-full bg-white hover:bg-cyan-300 text-black font-black text-xs uppercase tracking-widest transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.6)] flex items-center gap-2 hover:scale-105 active:scale-95 overflow-hidden"
+            >
+              <KineticTextFlip text="LAUNCH" /> <ExternalLink className="w-4 h-4" />
+            </a>
+          ) : (
+            <button
+              disabled
+              className="px-8 py-3 rounded-full bg-white/20 text-white/50 font-mono text-xs uppercase cursor-not-allowed flex items-center gap-1"
+            >
+              PREVIEW <Sparkles className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
-        {/* Bottom Thumbnail Deck & Arrow Controls - Increased Size */}
-        <div className="flex items-center gap-3 sm:gap-5 mt-4 relative z-20">
-          <button
-            onClick={() => selectCard((activeIndex - 1 + total) % total)}
-            className="p-3.5 sm:p-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all hover:scale-110 active:scale-95 shadow-lg flex-shrink-0"
-            aria-label="Previous app"
-          >
-            <MoveLeft className="w-5 h-5" />
-          </button>
-
-          {/* Mini Thumbnail Indicators (Significantly Bigger Boxes) */}
-          <div className="flex items-center gap-2.5 sm:gap-3.5 overflow-x-auto py-2 px-1 max-w-full scrollbar-none">
+        {/* DESKTOP THUMBNAILS (hidden on mobile, visible on sm and up) */}
+        <div className="hidden sm:flex absolute bottom-8 right-10 lg:right-16 z-20 flex-col items-end pointer-events-auto">
+          <div className="flex items-center gap-2 bg-black/70 backdrop-blur-xl p-1.5 rounded-xl border border-white/20 shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
             {apeItems.map((item, idx) => {
               const isSel = idx === activeIndex;
               return (
                 <button
                   key={item.id}
                   onClick={() => selectCard(idx)}
-                  className={`relative group rounded-xl overflow-hidden w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 border-2 transition-all duration-300 flex-shrink-0 ${isSel
-                    ? 'border-cyan-400 scale-110 shadow-[0_0_20px_rgba(6,182,212,0.7)] ring-2 ring-cyan-400/40 z-10'
-                    : 'border-white/25 opacity-60 hover:opacity-100 hover:border-white/60 hover:scale-105'
+                  className={`relative group rounded-lg overflow-hidden w-11 h-11 border-2 transition-all duration-300 flex-shrink-0 ${isSel
+                    ? 'border-cyan-400 scale-110 shadow-[0_0_15px_rgba(6,182,212,0.8)] ring-2 ring-cyan-400/50'
+                    : 'border-white/20 opacity-50 hover:opacity-100 hover:border-white/60 hover:scale-105'
                     }`}
                   title={item.title}
                 >
                   <img
                     src={item.image}
                     alt={item.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    className="w-full h-full object-cover"
                   />
                   <div
-                    className={`absolute inset-0 bg-cyan-500/20 transition-opacity duration-300 ${isSel ? 'opacity-0' : 'opacity-40 group-hover:opacity-0'
+                    className={`absolute inset-0 bg-cyan-500/20 transition-opacity ${isSel ? 'opacity-0' : 'opacity-40 group-hover:opacity-0'
                       }`}
                   />
                 </button>
               );
             })}
           </div>
+        </div>
 
-          <button
-            onClick={() => selectCard((activeIndex + 1) % total)}
-            className="p-3.5 sm:p-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all hover:scale-110 active:scale-95 shadow-lg flex-shrink-0"
-            aria-label="Next app"
-          >
-            <MoveRight className="w-5 h-5" />
-          </button>
+      </div>
+
+      {/* DEDICATED MOBILE CONTENT CONTAINER (only visible on mobile screens < 640px) */}
+      <div className="block sm:hidden px-4 mt-2 relative z-20">
+        {/* Info Box */}
+        <div className="bg-[#0A0D1A]/95 border border-cyan-500/30 p-4 rounded-2xl backdrop-blur-xl shadow-[0_0_30px_rgba(6,182,212,0.25)] flex flex-col gap-2.5">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="px-2.5 py-0.5 rounded bg-gradient-to-r from-red-600 via-rose-500 to-amber-500 text-white font-black text-[10px] font-mono flex items-center gap-1 shadow-[0_0_10px_rgba(239,68,68,0.6)] uppercase">
+              <Flame className="w-3 h-3 fill-white" /> {activeItem.tag}
+            </span>
+            <span className="px-2.5 py-0.5 rounded text-[10px] font-mono text-cyan-300 bg-cyan-950/80 border border-cyan-500/30 font-bold uppercase tracking-widest">
+              {activeItem.category}
+            </span>
+          </div>
+
+          <h2 className="hero-heading text-3xl font-black uppercase tracking-tighter leading-none font-['Kanit',sans-serif]">
+            {activeItem.title}
+          </h2>
+
+          <p className="text-xs font-semibold uppercase tracking-wider text-cyan-200/90 line-clamp-2">
+            {activeItem.description}
+          </p>
+
+          {activeItem.link !== '#' ? (
+            <a
+              href={activeItem.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group w-full py-2.5 rounded-full bg-white text-black font-black text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 shadow-[0_0_20px_rgba(255,255,255,0.4)] active:scale-95 transition-all mt-1 overflow-hidden"
+            >
+              <KineticTextFlip text="LAUNCH" /> <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          ) : (
+            <button
+              disabled
+              className="w-full py-2.5 rounded-full bg-white/20 text-white/50 font-mono text-xs uppercase cursor-not-allowed flex items-center justify-center gap-1 mt-1"
+            >
+              PREVIEW <Sparkles className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* Dedicated Mobile Thumbnail Selector Deck */}
+        <div className="mt-3 flex items-center gap-2.5 overflow-x-auto py-2.5 px-3 bg-black/80 backdrop-blur-xl rounded-2xl border border-white/20 shadow-xl scrollbar-none">
+          {apeItems.map((item, idx) => {
+            const isSel = idx === activeIndex;
+            return (
+              <button
+                key={`mobile-thumb-${item.id}`}
+                onClick={() => selectCard(idx)}
+                className={`relative group rounded-xl overflow-hidden w-12 h-12 border-2 transition-all duration-300 flex-shrink-0 ${isSel
+                  ? 'border-cyan-400 scale-105 shadow-[0_0_15px_rgba(6,182,212,0.8)] ring-2 ring-cyan-400/50 z-10'
+                  : 'border-white/20 opacity-50 active:opacity-100'
+                  }`}
+                title={item.title}
+              >
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="w-full h-full object-cover"
+                />
+                <div
+                  className={`absolute inset-0 bg-cyan-500/20 transition-opacity ${isSel ? 'opacity-0' : 'opacity-40'
+                    }`}
+                />
+              </button>
+            );
+          })}
         </div>
       </div>
     </section>
