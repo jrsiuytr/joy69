@@ -1,8 +1,8 @@
 {
-  "name": "let-s-go-69",
-  "version": "0.0.0",
+  "name": "Joy Portfolio",
+  "version": "0.0.1",
   "private": true,
-  "description": "This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.",
+  "description": "Welcome to my portflio.",
   "homepage": "https://github.com/mrarindam/joy69#readme",
   "bugs": {
     "url": "https://github.com/mrarindam/joy69/issues"
