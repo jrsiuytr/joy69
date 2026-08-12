@@ -2,13 +2,13 @@ import React, { useRef } from 'react';
 import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
 import { FadeIn } from './FadeIn';
 import { LiveProjectButton } from './LiveProjectButton';
-import utexo1Img from '../images/utexo1.png';
-import utexob from '../images/utexob.png';
-import utexofe from '../images/utexofe.png';
-import bloom from '../images/bloom1.png';
-import nao1 from '../images/nao1.png';
-import naol from '../images/naol.png';
-import naoban from '../images/naoxbanner.jpg';
+import utexo1Img from '../images/utexo1.webp';
+import utexob from '../images/utexob.webp';
+import utexofe from '../images/utexofe.webp';
+import bloom from '../images/bloom1.webp';
+import nao1 from '../images/nao1.webp';
+import naol from '../images/naol.webp';
+import naoban from '../images/naoxbanner.webp';
 
 interface Project {
   number: string;
@@ -111,12 +111,16 @@ const ProjectCard: React.FC<CardProps> = ({ project, index, totalCards, progress
             <img
               src={project.col1Img1}
               alt={`${project.name} preview 1`}
+              loading="lazy"
+              decoding="async"
               className="w-full rounded-[40px] sm:rounded-[50px] md:rounded-[60px] object-cover shadow-lg border border-white/10"
               style={{ height: 'clamp(130px, 16vw, 230px)' }}
             />
             <img
               src={project.col1Img2}
               alt={`${project.name} preview 2`}
+              loading="lazy"
+              decoding="async"
               className="w-full rounded-[40px] sm:rounded-[50px] md:rounded-[60px] object-cover shadow-lg border border-white/10"
               style={{ height: 'clamp(160px, 22vw, 340px)' }}
             />
@@ -127,6 +131,8 @@ const ProjectCard: React.FC<CardProps> = ({ project, index, totalCards, progress
             <img
               src={project.col2Img}
               alt={`${project.name} main view`}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full min-h-[250px] md:min-h-[400px] rounded-[40px] sm:rounded-[50px] md:rounded-[60px] object-cover shadow-lg border border-white/10"
             />
           </div>

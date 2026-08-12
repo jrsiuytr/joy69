@@ -18,6 +18,10 @@
   padding: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 html, body, #root {
   background-color: #05060B;
   font-family: 'Kanit', sans-serif;
@@ -78,6 +82,46 @@ html, body, #root {
 
 .rotate-x-0 {
   transform: rotateX(0deg);
+}
+
+/* GPU Acceleration & Performance Utilities */
+.gpu-layer {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* 60FPS Smooth Marquee Animations */
+@keyframes marqueeLeft {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes marqueeRight {
+  0% { transform: translate3d(-50%, 0, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+.animate-marquee-left {
+  animation: marqueeLeft 38s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-right {
+  animation: marqueeRight 38s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-left:hover,
+.animate-marquee-right:hover {
+  animation-play-state: paused;
+}
+
+/* Hide default browser cursor completely on desktop so ONLY custom Arrow Cursor shows everywhere */
+@media (min-width: 640px) {
+  *, *::before, *::after, html, body, #root, a, button, input, select, textarea, [role="button"], .cursor-pointer {
+    cursor: none !important;
+  }
 }
 
 

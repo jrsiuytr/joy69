@@ -4,7 +4,7 @@ import { FadeIn } from './FadeIn';
 import { Magnet } from './Magnet';
 import { ContactButton } from './ContactButton';
 import { KineticTextFlip } from './KineticTextFlip';
-import spidermanImg from '../images/spiderman.png';
+import spidermanImg from '../images/spiderman.webp';
 
 export const HeroSection: React.FC = () => {
   const [showWebNet, setShowWebNet] = useState(false);
@@ -22,16 +22,23 @@ export const HeroSection: React.FC = () => {
   });
 
   // Smooth continuous metric transforms across page scroll (Hero -> Footer)
-  const spiderLeft = useTransform(smoothProgress, [0, 0.85, 1], ['50%', '82%', '82%']);
-  const ropeHeightVh = useTransform(smoothProgress, [0, 0.35, 1], [44, 58, 62]);
+  const spiderLeft = useTransform(smoothProgress, [0, 0.18, 0.85, 1], ['50%', '82%', '82%', '82%']);
+  const ropeHeightVh = useTransform(smoothProgress, [0, 0.18, 1], [44, 58, 62]);
   const ropeHeightPx = useTransform(ropeHeightVh, (v) => `${v}vh`);
-  const spiderScale = useTransform(smoothProgress, [0, 0.35, 1], [1.0, 0.58, 0.52]);
+  const spiderScale = useTransform(smoothProgress, [0, 0.18, 1], [1.0, 0.58, 0.52]);
   const footerLift = useTransform(smoothProgress, [0.85, 1], [0, 140]);
   const footerY = useTransform(footerLift, (v) => -v);
 
-  // 60fps GPU rope bending motion values (ZERO React re-renders on mousemove!)
-  const ropeBendX = useMotionValue(12);
-  const ropeBendY = useMotionValue(50);
+  // 60fps GPU pendulum spring physics for Spider-Man & Web Rope swing (Generous freedom of movement!)
+  const rawSwingX = useMotionValue(0);
+  const rawSwingY = useMotionValue(0);
+
+  const swingX = useSpring(rawSwingX, { stiffness: 110, damping: 18, mass: 0.5 });
+  const swingY = useSpring(rawSwingY, { stiffness: 110, damping: 18, mass: 0.5 });
+
+  // Web Rope SVG path control points curve elastically relative to Spider-Man's swing
+  const ropeBendX = useTransform(swingX, (x) => 12 - x * 0.32);
+  const ropeBendY = useTransform(swingY, (y) => 50 - y * 0.22);
   const ropeBendXPlus = useTransform(ropeBendX, (x) => x + 6);
   const ropeBendXMinus = useTransform(ropeBendX, (x) => x - 6);
 
@@ -54,6 +61,98 @@ export const HeroSection: React.FC = () => {
     { label: 'Projects', href: '#projects' },
     { label: 'Contact', href: '#contact' },
   ];
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      const targetId = href.substring(1);
+      const targetElement = document.getElementById(targetId);
+      if (targetElement) {
+        // Temporarily disable CSS scroll-behavior to prevent browser interpolation conflict & vibration glitch
+        document.documentElement.style.scrollBehavior = 'auto';
+
+        const targetY = targetElement.getBoundingClientRect().top + (window.scrollY || window.pageYOffset);
+        const startY = window.scrollY || window.pageYOffset;
+        const distance = targetY - startY;
+        const duration = 950; // 950ms silky ease-in-out transition
+        let startTime: number | null = null;
+
+        const easeInOutQuint = (t: number) => {
+          return t < 0.5 ? 16 * t * t * t * t * t : 1 - Math.pow(-2 * t + 2, 5) / 2;
+        };
+
+        const step = (currentTime: number) => {
+          if (!startTime) startTime = currentTime;
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const easeProgress = easeInOutQuint(progress);
+
+          window.scrollTo(0, startY + distance * easeProgress);
+
+          if (progress < 1) {
+            requestAnimationFrame(step);
+          } else {
+            // Restore default scrollBehavior after smooth transition completes
+            document.documentElement.style.scrollBehavior = '';
+          }
+        };
+
+        requestAnimationFrame(step);
+        window.history.pushState(null, '', href);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const currentLeftRatio = smoothProgress.get() > 0.18 ? 0.82 : 0.5;
+      const centerX = window.innerWidth * currentLeftRatio;
+      const centerY = window.innerHeight * 0.45;
+
+      // Full screen viewport mouse tracking for wide freedom of motion
+      const dx = e.clientX - centerX;
+      const dy = e.clientY - centerY;
+
+      rawSwingX.set(dx * 0.45);
+      rawSwingY.set(dy * 0.35);
+    };
+
+    const handleMouseLeave = () => {
+      rawSwingX.set(0);
+      rawSwingY.set(0);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        const currentLeftRatio = smoothProgress.get() > 0.18 ? 0.82 : 0.5;
+        const centerX = window.innerWidth * currentLeftRatio;
+        const centerY = window.innerHeight * 0.45;
+
+        const dx = touch.clientX - centerX;
+        const dy = touch.clientY - centerY;
+
+        rawSwingX.set(dx * 0.45);
+        rawSwingY.set(dy * 0.35);
+      }
+    };
+
+    const handleTouchEnd = () => {
+      rawSwingX.set(0);
+      rawSwingY.set(0);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    document.addEventListener('mouseleave', handleMouseLeave);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [rawSwingX, rawSwingY, smoothProgress]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -84,12 +183,6 @@ export const HeroSection: React.FC = () => {
     };
   }, []);
 
-  // Handle high-performance mouse movement without triggering React component re-renders
-  const handlePositionChange = (pos: { x: number; y: number }) => {
-    ropeBendX.set(12 + pos.x * 0.45);
-    ropeBendY.set(50 + pos.y * 0.25);
-  };
-
   return (
     <section className="relative h-screen w-full flex flex-col justify-between overflow-x-clip bg-transparent">
       {/* Navbar */}
@@ -99,7 +192,8 @@ export const HeroSection: React.FC = () => {
             <a
               key={link.label}
               href={link.href}
-              className="group text-[#D7E2EA] font-medium uppercase tracking-wider text-sm md:text-lg lg:text-[1.4rem] hover:opacity-100 transition-opacity duration-200"
+              onClick={(e) => handleNavClick(e, link.href)}
+              className="group text-[#D7E2EA] font-medium uppercase tracking-wider text-sm md:text-lg lg:text-[1.4rem] hover:opacity-100 transition-opacity duration-200 cursor-pointer"
             >
               <KineticTextFlip text={link.label} />
             </a>
@@ -127,14 +221,13 @@ export const HeroSection: React.FC = () => {
             scale: spiderScale,
           }}
         >
-          {/* Expanded interaction Magnet wrapper: large padding & smooth mouse movement */}
-          <Magnet
-            padding={320}
-            strength={1.6}
-            activeTransition="transform 0.2s ease-out"
-            inactiveTransition="transform 0.5s ease-in-out"
-            onPositionChange={handlePositionChange}
-            className="flex flex-col items-center relative overflow-visible"
+          {/* Single Unified Pendulum Assembly: Spider-Man & Web Rope move in 100% synchronized physics */}
+          <motion.div
+            className="flex flex-col items-center relative overflow-visible pointer-events-none"
+            style={{
+              x: swingX,
+              y: swingY,
+            }}
           >
             {/* 1. Realistic Multi-Strand Movie Web Rope: Bends dynamically via MotionValues (0 React re-renders!) */}
             <motion.div
@@ -255,7 +348,7 @@ export const HeroSection: React.FC = () => {
                 />
               </div>
             </div>
-          </Magnet>
+          </motion.div>
         </motion.div>
       </div>
 

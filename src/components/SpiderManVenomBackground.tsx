@@ -42,8 +42,8 @@ export const SpiderManVenomBackground: React.FC = () => {
 
     const isMobile = window.innerWidth < 640;
 
-    // 1. Falling Soft Embers (Reduced count on Mobile for performance & clean visuals)
-    const emberCount = isMobile ? 8 : 40;
+    // 1. Falling Soft Embers (Reduced particle count by 80% for ultra-light site performance)
+    const emberCount = isMobile ? 2 : 8;
     const embers: { x: number; y: number; vy: number; vx: number; size: number; alpha: number }[] = [];
     for (let i = 0; i < emberCount; i++) {
       embers.push({
@@ -82,73 +82,112 @@ export const SpiderManVenomBackground: React.FC = () => {
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // B. ELEGANT SPIDER-MAN WEB MESH (Radiating cleanly behind Hero text)
+      // B. ELEGANT REALISTIC FLEXIBLE SPIDER-MAN WEB MESH
       const centerX = width * 0.48;
       const centerY = height * 0.42;
-      const numRays = isMobile ? 10 : 16;
-      const numRings = isMobile ? 4 : 7;
+      const numRays = isMobile ? 12 : 18;
+      const numRings = isMobile ? 5 : 8;
       const maxRadius = Math.max(width, height) * 0.65;
 
       ctx.save();
       // Fade web mesh slightly as user scrolls down into Venom territory
       const webAlpha = Math.max(0.15, 0.45 - scrollProgress * 0.35);
 
-      // Mouse displacement vector
-      const dx = mouseX - centerX;
-      const dy = mouseY - centerY;
-      const mouseDist = Math.sqrt(dx * dx + dy * dy);
-      const mousePushX = mouseDist < 300 ? (dx / mouseDist) * 20 : 0;
-      const mousePushY = mouseDist < 300 ? (dy / mouseDist) * 20 : 0;
+      // Build Flexible Physics Node Mesh Grid
+      const bgNodeGrid: { x: number; y: number }[][] = [];
+      for (let r = 0; r <= numRings; r++) {
+        const ringNodes: { x: number; y: number }[] = [];
+        const ringRadius = (r / numRings) * maxRadius;
 
-      // 1. Draw Radial Web Rays
+        for (let i = 0; i < numRays; i++) {
+          const baseAngle = (i / numRays) * Math.PI * 2;
+          const angle = baseAngle + Math.sin(time * 0.4 + i) * 0.015;
+
+          const origX = centerX + Math.cos(angle) * ringRadius;
+          const origY = centerY + Math.sin(angle) * ringRadius;
+
+          // Realistic elastic swaying physics (Wind oscillation + Mouse push)
+          const swayX = Math.sin(time * 1.1 + r * 0.7 + i) * (2.5 + r * 0.9);
+          const swayY = Math.cos(time * 1.3 + r * 0.5 + i) * (2.5 + r * 0.9);
+
+          const nodeDx = origX - mouseX;
+          const nodeDy = origY - mouseY;
+          const nodeDist = Math.sqrt(nodeDx * nodeDx + nodeDy * nodeDy);
+          const pushFactor = Math.max(0, (220 - nodeDist) / 220);
+          const pushX = (nodeDx / (nodeDist || 1)) * pushFactor * 30;
+          const pushY = (nodeDy / (nodeDist || 1)) * pushFactor * 30;
+
+          ringNodes.push({
+            x: origX + swayX + pushX,
+            y: origY + swayY + pushY,
+          });
+        }
+        bgNodeGrid.push(ringNodes);
+      }
+
+      // 1. Draw Radial Elastic Web Rays
+      ctx.lineWidth = 1.3;
       for (let i = 0; i < numRays; i++) {
-        const angle = (i / numRays) * Math.PI * 2 + Math.sin(time * 0.3) * 0.02;
-        const rayEndX = centerX + Math.cos(angle) * maxRadius + mousePushX;
-        const rayEndY = centerY + Math.sin(angle) * maxRadius + mousePushY;
+        const rayGrad = ctx.createLinearGradient(
+          bgNodeGrid[0][i].x,
+          bgNodeGrid[0][i].y,
+          bgNodeGrid[numRings][i].x,
+          bgNodeGrid[numRings][i].y
+        );
+        rayGrad.addColorStop(0, `rgba(255, 255, 255, ${webAlpha * 1.2})`);
+        rayGrad.addColorStop(0.5, i % 2 === 0 ? `rgba(239, 68, 68, ${webAlpha})` : `rgba(56, 189, 248, ${webAlpha})`);
+        rayGrad.addColorStop(1, `rgba(255, 255, 255, ${webAlpha * 0.3})`);
 
-        ctx.strokeStyle = i % 2 === 0 ? `rgba(239, 68, 68, ${webAlpha})` : `rgba(56, 189, 248, ${webAlpha})`;
-        ctx.lineWidth = 1.2;
-        if (!isMobile) {
-          ctx.shadowColor = i % 2 === 0 ? '#ef4444' : '#38bdf8';
-          ctx.shadowBlur = 8;
-        }
-
+        ctx.strokeStyle = rayGrad;
         ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.lineTo(rayEndX, rayEndY);
+        ctx.moveTo(bgNodeGrid[0][i].x, bgNodeGrid[0][i].y);
+
+        for (let r = 1; r <= numRings; r++) {
+          ctx.lineTo(bgNodeGrid[r][i].x, bgNodeGrid[r][i].y);
+        }
         ctx.stroke();
       }
 
-      // 2. Draw Concentric Curved Web Rings (Sagging Web Strings)
+      // 2. Draw Flexible Sagging Catenary Web Rings
       for (let r = 1; r <= numRings; r++) {
-        const radius = (r / numRings) * maxRadius;
-        const sag = 15 + Math.sin(time * 1.5 + r) * 4;
-
-        ctx.strokeStyle = r % 2 === 0 ? `rgba(239, 68, 68, ${webAlpha * 0.9})` : `rgba(56, 189, 248, ${webAlpha * 0.9})`;
-        ctx.lineWidth = 1.4;
+        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = r % 2 === 0 ? `rgba(239, 68, 68, ${webAlpha * 0.85})` : `rgba(56, 189, 248, ${webAlpha * 0.85})`;
 
         ctx.beginPath();
-        for (let i = 0; i <= numRays; i++) {
-          const angle1 = (i / numRays) * Math.PI * 2;
-          const angle2 = ((i + 1) / numRays) * Math.PI * 2;
+        for (let i = 0; i < numRays; i++) {
+          const p1 = bgNodeGrid[r][i];
+          const nextIdx = (i + 1) % numRays;
+          const p2 = bgNodeGrid[r][nextIdx];
 
-          const p1x = centerX + Math.cos(angle1) * radius;
-          const p1y = centerY + Math.sin(angle1) * radius;
+          const midX = (p1.x + p2.x) / 2;
+          const midY = (p1.y + p2.y) / 2;
 
-          const p2x = centerX + Math.cos(angle2) * radius;
-          const p2y = centerY + Math.sin(angle2) * radius;
+          const centerVectorX = centerX - midX;
+          const centerVectorY = centerY - midY;
+          const sagAmount = 0.14 + Math.sin(time * 1.8 + r + i) * 0.04;
 
-          // Sagging quadratic control point
-          const midAngle = (angle1 + angle2) / 2;
-          const cpX = centerX + Math.cos(midAngle) * (radius - sag);
-          const cpY = centerY + Math.sin(midAngle) * (radius - sag);
+          const cpX = midX + centerVectorX * sagAmount;
+          const cpY = midY + centerVectorY * sagAmount;
 
-          if (i === 0) ctx.moveTo(p1x, p1y);
-          ctx.quadraticCurveTo(cpX, cpY, p2x, p2y);
+          if (i === 0) ctx.moveTo(p1.x, p1.y);
+          ctx.quadraticCurveTo(cpX, cpY, p2.x, p2.y);
         }
         ctx.stroke();
       }
-      ctx.shadowBlur = 0;
+
+      // 3. Draw Glistening Dewdrop Silk Nodes
+      for (let r = 2; r <= numRings; r += 2) {
+        for (let i = 0; i < numRays; i += 3) {
+          const node = bgNodeGrid[r][i];
+          const glintAlpha = (0.3 + Math.sin(time * 2.5 + r * 2 + i) * 0.3) * webAlpha;
+
+          ctx.fillStyle = `rgba(255, 255, 255, ${glintAlpha})`;
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, 2.0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
       ctx.restore();
 
       // C. LIQUID VENOM SYMBIOTE TENDRIL VINES (Creeping in organically from edges)
@@ -157,7 +196,7 @@ export const SpiderManVenomBackground: React.FC = () => {
         ctx.save();
         ctx.globalAlpha = symbioteAlpha;
 
-        const numTendrils = isMobile ? 4 : 10;
+        const numTendrils = isMobile ? 4 : 8;
         for (let t = 0; t < numTendrils; t++) {
           const isTop = t % 2 === 0;
           const startX = (t / numTendrils) * width;
@@ -171,12 +210,8 @@ export const SpiderManVenomBackground: React.FC = () => {
           const cpY = (startY + endY) / 2 + Math.sin(time * 1.5 + t) * 50;
 
           // Outer Deep Blue/Red Neon Edge Glow
-          ctx.strokeStyle = t % 2 === 0 ? 'rgba(37, 99, 235, 0.5)' : 'rgba(220, 38, 38, 0.5)';
-          if (!isMobile) {
-            ctx.shadowColor = t % 2 === 0 ? '#0284c7' : '#ef4444';
-            ctx.shadowBlur = 14;
-          }
-          ctx.lineWidth = isMobile ? 8 : 14;
+          ctx.strokeStyle = t % 2 === 0 ? 'rgba(37, 99, 235, 0.4)' : 'rgba(220, 38, 38, 0.4)';
+          ctx.lineWidth = isMobile ? 8 : 12;
           ctx.lineCap = 'round';
 
           ctx.beginPath();
@@ -186,8 +221,7 @@ export const SpiderManVenomBackground: React.FC = () => {
 
           // Inner Viscous Black Symbiote Core
           ctx.strokeStyle = '#050711';
-          ctx.shadowBlur = 0;
-          ctx.lineWidth = isMobile ? 5 : 10;
+          ctx.lineWidth = isMobile ? 4 : 8;
           ctx.beginPath();
           ctx.moveTo(startX, startY);
           ctx.quadraticCurveTo(cpX, cpY, endX, endY);
@@ -219,10 +253,6 @@ export const SpiderManVenomBackground: React.FC = () => {
 
         ctx.strokeStyle = streakGrad;
         ctx.lineWidth = ember.size;
-        if (!isMobile) {
-          ctx.shadowColor = '#ef4444';
-          ctx.shadowBlur = 6;
-        }
 
         ctx.beginPath();
         ctx.moveTo(ember.x, ember.y);
@@ -234,15 +264,24 @@ export const SpiderManVenomBackground: React.FC = () => {
         ctx.arc(ember.x, ember.y, ember.size * 0.7, 0, Math.PI * 2);
         ctx.fill();
       });
-      ctx.shadowBlur = 0;
 
       animationFrameId = requestAnimationFrame(render);
     };
 
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animationFrameId);
+      } else {
+        animationFrameId = requestAnimationFrame(render);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     render();
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('mousemove', handleMouseMove);

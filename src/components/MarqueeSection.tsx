@@ -2,26 +2,26 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ExternalLink, RotateCcw, Sparkles } from 'lucide-react';
 import { KineticTextFlip } from './KineticTextFlip';
 
-import gtaviImg from '../images/games/gta6.jpg';
+import gtaviImg from '../images/games/gta6.webp';
 import fc27Img from '../images/games/fc27.webp';
-import acImg from '../images/games/asbf.avif';
-import pubgImg from '../images/games/pubg.jpg';
-import apexImg from '../images/games/apex.jpg';
-import gowImg from '../images/games/gow.jpg';
-import cyberpunkImg from '../images/games/cyberpunk.jpg';
-import eldenringImg from '../images/games/eldenring.jpg';
-import codImg from '../images/games/cod.jpg';
-import valorantImg from '../images/games/valorant.jpg';
-import rdr2Img from '../images/games/rdr2.jpg';
-import spidermanImg from '../images/games/sm22.jpg';
-import wukongImg from '../images/games/wukong.jpg';
-import fortniteImg from '../images/games/fortnite copy.jpg';
-import helldivers2Img from '../images/games/helldivers2.jpg';
-import witcher3Img from '../images/games/witcher3.jpg';
-import cs2Img from '../images/games/cs2.jpg';
-import forza5Img from '../images/games/forza5.jpg';
-import overwatch2Img from '../images/games/overwatch2.jpg';
-import haloinfiniteImg from '../images/games/haloinfinite.jpg';
+import acImg from '../images/games/asbf.webp';
+import pubgImg from '../images/games/pubg.webp';
+import apexImg from '../images/games/apex.webp';
+import gowImg from '../images/games/gow.webp';
+import cyberpunkImg from '../images/games/cyberpunk.webp';
+import eldenringImg from '../images/games/eldenring.webp';
+import codImg from '../images/games/cod.webp';
+import valorantImg from '../images/games/valorant.webp';
+import rdr2Img from '../images/games/rdr2.webp';
+import spidermanImg from '../images/games/sm22.webp';
+import wukongImg from '../images/games/wukong.webp';
+import fortniteImg from '../images/games/fortnite copy.webp';
+import helldivers2Img from '../images/games/helldivers2.webp';
+import witcher3Img from '../images/games/witcher3.webp';
+import cs2Img from '../images/games/cs2.webp';
+import forza5Img from '../images/games/forza5.webp';
+import overwatch2Img from '../images/games/overwatch2.webp';
+import haloinfiniteImg from '../images/games/haloinfinite.webp';
 
 export interface MarqueeItem {
   id: string;
@@ -42,23 +42,23 @@ const marqueeItemsData: MarqueeItem[] = [
   {
     id: '2',
     image: fc27Img,
-    title: 'EA SPORTS FC 27',
+    title: 'EA SPORTS FC 25',
     category: 'Sports & Football',
-    link: 'https://www.ea.com/games/ea-sports-fc',
+    link: 'https://www.ea.com/games/ea-sports/ea-sports-fc/ea-sports-fc-25',
   },
   {
     id: '3',
     image: acImg,
     title: "Assassin's Creed IV: Black Flag",
     category: 'Pirate Action Adventure',
-    link: 'https://www.ubisoft.com/en-us/game/assassins-creed',
+    link: 'https://store.ubisoft.com/us/game?pid=56c4948088a7e300458b46cc',
   },
   {
     id: '4',
     image: pubgImg,
     title: 'PUBG: BATTLEGROUNDS',
     category: 'Battle Royale',
-    link: 'https://pubg.com',
+    link: 'https://pubg.com/en/main',
   },
   {
     id: '5',
@@ -84,16 +84,16 @@ const marqueeItemsData: MarqueeItem[] = [
   {
     id: '8',
     image: eldenringImg,
-    title: 'Elden Ring: Shadow of Erdtree',
+    title: 'Elden Ring: Shadow of the Erdtree',
     category: 'Dark Fantasy RPG',
-    link: 'https://www.eldenring.games',
+    link: 'https://www.bandainamcoent.com/games/elden-ring',
   },
   {
     id: '9',
     image: codImg,
     title: 'Call of Duty: Black Ops 6',
     category: 'FPS Shooter',
-    link: 'https://www.callofduty.com',
+    link: 'https://www.callofduty.com/blackops6',
   },
   {
     id: '10',
@@ -149,14 +149,14 @@ const marqueeItemsData: MarqueeItem[] = [
     image: cs2Img,
     title: 'Counter-Strike 2',
     category: 'Tactical FPS',
-    link: 'https://www.counter-strike.net',
+    link: 'https://www.counter-strike.net/cs2',
   },
   {
     id: '18',
     image: forza5Img,
     title: 'Forza Horizon 5',
     category: 'Open World Racing',
-    link: 'https://forza.net',
+    link: 'https://forza.net/horizon',
   },
   {
     id: '19',
@@ -170,7 +170,7 @@ const marqueeItemsData: MarqueeItem[] = [
     image: haloinfiniteImg,
     title: 'Halo Infinite',
     category: 'Sci-Fi FPS',
-    link: 'https://www.halowaypoint.com',
+    link: 'https://www.xbox.com/en-US/games/halo-infinite',
   },
 ];
 
@@ -216,6 +216,7 @@ const MarqueeCard: React.FC<MarqueeCardProps> = ({ item }) => {
             src={item.image}
             alt={item.title}
             loading="lazy"
+            decoding="async"
             className={`w-full h-full transition-transform duration-500 group-hover:scale-105 ${item.image === spidermanImg
               ? 'object-contain drop-shadow-[0_10px_25px_rgba(220,38,38,0.6)]'
               : 'object-cover'
@@ -283,62 +284,24 @@ const MarqueeCard: React.FC<MarqueeCardProps> = ({ item }) => {
 };
 
 export const MarqueeSection: React.FC = () => {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [offset, setOffset] = useState(0);
+  const row1Original = marqueeItemsData.slice(0, 10);
+  const row2Original = marqueeItemsData.slice(10, 20);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!sectionRef.current) return;
-      const rect = sectionRef.current.getBoundingClientRect();
-      const sectionTop = rect.top + window.scrollY;
-      const calculatedOffset = (window.scrollY - sectionTop + window.innerHeight) * 0.3;
-      setOffset(calculatedOffset);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-  const row1Original = marqueeItemsData.slice(0, 11);
-  const row2Original = marqueeItemsData.slice(11, 21);
-
-  const row1 = [...row1Original, ...row1Original, ...row1Original];
-  const row2 = [...row2Original, ...row2Original, ...row2Original];
-
-  const row1Transform = `translateX(${offset - 200}px)`;
-  const row2Transform = `translateX(${-(offset - 200)}px)`;
+  const row1 = [...row1Original, ...row1Original];
+  const row2 = [...row2Original, ...row2Original];
 
   return (
-    <section
-      ref={sectionRef}
-      className="bg-transparent pt-24 sm:pt-32 md:pt-40 pb-10 overflow-hidden w-full relative z-20"
-    >
-      <div className="flex flex-col gap-3">
-        {/* Row 1 - Moves RIGHT on scroll */}
-        <div
-          className="flex gap-3 w-max"
-          style={{
-            transform: row1Transform,
-            willChange: 'transform',
-          }}
-        >
+    <section className="bg-transparent pt-24 sm:pt-32 md:pt-40 pb-10 overflow-hidden w-full relative z-20 select-none">
+      <div className="flex flex-col gap-4 sm:gap-6">
+        {/* Row 1 - Smooth continuous 60FPS marquee moving RIGHT (pauses on hover) */}
+        <div className="flex gap-4 sm:gap-6 w-max animate-marquee-right gpu-layer">
           {row1.map((item, index) => (
             <MarqueeCard key={`row1-${item.id}-${index}`} item={item} />
           ))}
         </div>
 
-        {/* Row 2 - Moves LEFT on scroll */}
-        <div
-          className="flex gap-3 w-max"
-          style={{
-            transform: row2Transform,
-            willChange: 'transform',
-          }}
-        >
+        {/* Row 2 - Smooth continuous 60FPS marquee moving LEFT (pauses on hover) */}
+        <div className="flex gap-4 sm:gap-6 w-max animate-marquee-left gpu-layer">
           {row2.map((item, index) => (
             <MarqueeCard key={`row2-${item.id}-${index}`} item={item} />
           ))}

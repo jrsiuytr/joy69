@@ -1,6 +1,8 @@
 import xIcon from './images/x.svg';
 import telegramIcon from './images/telegram-svgrepo-com.svg';
 import discordIcon from './images/discord-communication-interaction-message-network-svgrepo-com.svg';
+import { CustomCursor } from './components/CustomCursor';
+import { ScrollToTopButton } from './components/ScrollToTopButton';
 import { HeroSection } from './components/HeroSection';
 import { Spotlight3DSection } from './components/Spotlight3DSection';
 import { MarqueeSection } from './components/MarqueeSection';
@@ -8,13 +10,23 @@ import { AboutSection } from './components/AboutSection';
 import { ServicesSection } from './components/ServicesSection';
 import { ProjectsSection } from './components/ProjectsSection';
 import { SpiderManVenomBackground } from './components/SpiderManVenomBackground';
+import { SpiderWebLoader } from './components/SpiderWebLoader';
 import { FadeIn } from './components/FadeIn';
 import { ContactButton } from './components/ContactButton';
 import { Mail } from 'lucide-react';
 
 export function App() {
   return (
-    <div className="w-full bg-[#08080E] min-h-screen text-[#D7E2EA] overflow-x-clip font-['Kanit',sans-serif] relative">
+    <div className="w-full bg-[#08080E] min-h-screen text-[#D7E2EA] overflow-x-clip font-['Kanit',sans-serif] relative md:cursor-none">
+      {/* Spider-Man Custom Cursor with Web Shockwave Click Effects */}
+      <CustomCursor />
+
+      {/* Floating Scroll To Top Button */}
+      <ScrollToTopButton />
+
+      {/* 0. Spider-Web Net Cinematic Zoom Loading Screen */}
+      <SpiderWebLoader />
+
       {/* Spider-Man vs Venom Symbiote Scroll Background Theme */}
       <SpiderManVenomBackground />
 

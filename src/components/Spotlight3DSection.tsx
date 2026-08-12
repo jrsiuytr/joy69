@@ -2,13 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { ExternalLink, Flame, Sparkles } from 'lucide-react';
 import { KineticTextFlip } from './KineticTextFlip';
-import utexo1Img from '../images/utexo1.png';
-import bloomImg from '../images/bloom1.png';
-import naoxevm from '../images/naoxevm.jpg';
-import spidermanImg from '../images/spiderman.png';
-import arindam from '../images/arindam.png';
-import cyberpunkImg from '../images/games/cyberpunk.jpg';
-import relay from '../images/relay.jpg';
+import utexo1Img from '../images/utexo1.webp';
+import opensea from '../images/opensea.webp';
+import debank from '../images/debank.webp';
+import arcn from '../images/arc.webp';
+import arindam from '../images/arindam.webp';
+import base from '../images/base.webp';
+import relay from '../images/relay.webp';
 
 interface ApeItem {
   id: string;
@@ -22,11 +22,11 @@ interface ApeItem {
 
 const apeItems: ApeItem[] = [
   {
-    id: 'otherside',
-    title: 'OTHERSIDE',
-    category: 'GAMES',
-    tag: 'HOT',
-    description: 'WEB3-ENABLED VIRTUAL WORLDS ON APECHAIN',
+    id: 'utexo',
+    title: 'UTEXO',
+    category: 'stablecoin payment infrastructure',
+    tag: 'BITCOIN NATIVE',
+    description: 'Bitcoin-native execution and settlement layer',
     image: utexo1Img,
     link: 'https://utexo.com/',
   },
@@ -34,36 +34,36 @@ const apeItems: ApeItem[] = [
     id: 'relay',
     title: 'RELAY LINK',
     category: 'SWAP & BRIDGE',
-    tag: 'FAST',
+    tag: 'DEFI',
     description: 'LOW-COST SWAPS & BRIDGES ACROSS CHAINS',
     image: relay,
     link: 'https://relay.link/',
   },
   {
     id: 'debank',
-    title: 'DEBANK DEFI',
+    title: 'DEBANK',
     category: 'TRACKER',
     tag: 'WALLETS',
     description: 'WEB3 PORTFOLIO TRACKER & REAL-TIME ANALYTICS',
-    image: naoxevm,
+    image: debank,
     link: 'https://debank.com/',
   },
   {
     id: 'opensea',
-    title: 'OPENSEA HUB',
-    category: 'MARKETPLACE',
+    title: 'OPENSEA',
+    category: 'NFT MARKETPLACE',
     tag: 'NFTs',
     description: 'PREMIER WEB3 NFT MARKETPLACE & TRADING HUB',
-    image: bloomImg,
+    image: opensea,
     link: 'https://opensea.io/',
   },
   {
     id: 'arc',
-    title: 'ARC PROTOCOL',
-    category: 'STABLECOIN',
-    tag: 'FINANCE',
+    title: 'ARC NETWORK',
+    category: 'BLOCKCHAIN',
+    tag: 'LAYER-1',
     description: 'BUILD REAL-WORLD FINANCE ONCHAIN',
-    image: spidermanImg,
+    image: arcn,
     link: 'https://www.arc.io/',
   },
   {
@@ -81,7 +81,7 @@ const apeItems: ApeItem[] = [
     category: 'LAYER 2',
     tag: 'ECOSYSTEM',
     description: 'THE BEST LAYER-2 CHAIN FOR WEB3 APPLICATIONS',
-    image: cyberpunkImg,
+    image: base,
     link: 'https://www.base.org/',
   },
 ];
@@ -104,6 +104,20 @@ export const Spotlight3DSection: React.FC = () => {
 
   const total = apeItems.length;
   const angleStep = (Math.PI * 2) / total;
+  const userHasInteractedRef = useRef(false);
+  const lastInteractionTimeRef = useRef(Date.now());
+
+  // Automatic Smooth Card Sliding (Waits full 3 seconds after last user interaction/swipe)
+  useEffect(() => {
+    const autoSlideTimer = setInterval(() => {
+      if (!isDraggingRef.current && Date.now() - lastInteractionTimeRef.current >= 3000) {
+        targetRotationYRef.current -= angleStep;
+        lastInteractionTimeRef.current = Date.now();
+      }
+    }, 1000);
+
+    return () => clearInterval(autoSlideTimer);
+  }, [angleStep]);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -115,19 +129,20 @@ export const Spotlight3DSection: React.FC = () => {
     const isMobile = window.innerWidth < 640;
     const isTablet = window.innerWidth >= 640 && window.innerWidth < 1024;
 
-    const cylinderRadius = isMobile ? 4.8 : isTablet ? 6.2 : 7.6;
-    const cardHeight = isMobile ? 3.0 : isTablet ? 3.8 : 4.4;
-    const cameraZ = isMobile ? 7.2 : isTablet ? 8.0 : 8.8;
-    const cameraX = isMobile ? 0 : -0.6;
+    const cylinderRadius = isMobile ? 5.2 : isTablet ? 6.2 : 7.6;
+    const cardHeight = isMobile ? 2.5 : isTablet ? 3.6 : 4.4;
+    const cameraZ = isMobile ? 8.8 : isTablet ? 8.2 : 8.8;
+    const cameraY = isMobile ? 0.35 : 0.1;
+    const cameraX = 0; // Perfectly centered camera alignment
 
     // 1. WebGL Scene, Camera, Renderer
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(isMobile ? 42 : 35, width / height, 0.1, 100);
-    camera.position.set(cameraX, 0.1, cameraZ);
+    camera.position.set(cameraX, cameraY, cameraZ);
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     mount.appendChild(renderer.domElement);
 
     // 2. Clean Natural Lighting
@@ -242,9 +257,13 @@ export const Spotlight3DSection: React.FC = () => {
       }
     };
 
-    // 5. Unified Smooth Physics Interpolation Loop
+    // 5. Unified Smooth Physics Interpolation Loop with Viewport Visibility Pause
     let animId: number;
+    let isVisible = true;
+
     const animate = () => {
+      if (!isVisible) return;
+
       if (!isDraggingRef.current) {
         const diff = targetRotationYRef.current - rotationYRef.current;
         if (Math.abs(diff) > 0.0001) {
@@ -257,10 +276,25 @@ export const Spotlight3DSection: React.FC = () => {
       animId = requestAnimationFrame(animate);
     };
 
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible) {
+            cancelAnimationFrame(animId);
+            animate();
+          }
+        });
+      },
+      { threshold: 0.05 }
+    );
+
+    observer.observe(mount);
     animate();
 
     // Mouse Parallax Handler
     const handleMouseMove = (e: MouseEvent) => {
+      if (!isVisible) return;
       targetMouseRef.current.x = (e.clientX / window.innerWidth) * 2 - 1;
       targetMouseRef.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
     };
@@ -275,16 +309,18 @@ export const Spotlight3DSection: React.FC = () => {
 
       camera.aspect = width / height;
       camera.fov = mobile ? 42 : 35;
-      camera.position.z = mobile ? 7.2 : tablet ? 8.0 : 8.8;
-      camera.position.x = mobile ? 0 : -0.6;
+      camera.position.z = mobile ? 8.8 : tablet ? 8.2 : 8.8;
+      camera.position.y = mobile ? 0.35 : 0.1;
+      camera.position.x = 0;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     window.addEventListener('resize', handleResize);
 
     return () => {
+      observer.disconnect();
       cancelAnimationFrame(animId);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
@@ -309,6 +345,7 @@ export const Spotlight3DSection: React.FC = () => {
     const handlePointerUp = () => {
       if (!isDraggingRef.current) return;
       isDraggingRef.current = false;
+      lastInteractionTimeRef.current = Date.now();
       const curr = rotationYRef.current + velocityRef.current * 6;
       const nearestIdx = Math.round(-curr / angleStep);
       targetRotationYRef.current = -nearestIdx * angleStep;
@@ -323,12 +360,16 @@ export const Spotlight3DSection: React.FC = () => {
   }, [angleStep]);
 
   const handlePointerDown = (e: React.PointerEvent) => {
+    userHasInteractedRef.current = true;
     isDraggingRef.current = true;
+    lastInteractionTimeRef.current = Date.now();
     lastXRef.current = e.clientX;
     velocityRef.current = 0;
   };
 
   const selectCard = (index: number) => {
+    userHasInteractedRef.current = true;
+    lastInteractionTimeRef.current = Date.now();
     let targetAngle = -index * angleStep;
     const currentRot = rotationYRef.current;
     const diff = (targetAngle - currentRot) % (Math.PI * 2);

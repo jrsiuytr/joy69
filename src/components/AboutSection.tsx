@@ -44,6 +44,8 @@ export const AboutSection: React.FC = () => {
           <img
             src="https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/moon_icon.11395d36.png"
             alt="Decorative Moon"
+            loading="lazy"
+            decoding="async"
             className="w-[120px] sm:w-[160px] md:w-[210px] object-contain drop-shadow-xl"
           />
         </FadeIn>
@@ -55,6 +57,8 @@ export const AboutSection: React.FC = () => {
           <img
             src="https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/p59_1.4659672e.png"
             alt="Decorative 3D Object"
+            loading="lazy"
+            decoding="async"
             className="w-[100px] sm:w-[140px] md:w-[180px] object-contain drop-shadow-xl"
           />
         </FadeIn>
@@ -66,6 +70,8 @@ export const AboutSection: React.FC = () => {
           <img
             src="https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/lego_icon-1.703bb594.png"
             alt="Decorative Lego"
+            loading="lazy"
+            decoding="async"
             className="w-[120px] sm:w-[160px] md:w-[210px] object-contain drop-shadow-xl"
           />
         </FadeIn>
@@ -77,6 +83,8 @@ export const AboutSection: React.FC = () => {
           <img
             src="https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/Group_134-1.2e04f3ce.png"
             alt="Decorative 3D Group"
+            loading="lazy"
+            decoding="async"
             className="w-[130px] sm:w-[170px] md:w-[220px] object-contain drop-shadow-xl"
           />
         </FadeIn>
