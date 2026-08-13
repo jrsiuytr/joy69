@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { ExternalLink, Flame, Sparkles } from 'lucide-react';
-import { KineticTextFlip } from './KineticTextFlip';
+import { WaterButton } from './WaterButton';
 import utexo1Img from '../images/utexo1.webp';
 import opensea from '../images/opensea.webp';
 import debank from '../images/debank.webp';
@@ -106,11 +106,16 @@ export const Spotlight3DSection: React.FC = () => {
   const angleStep = (Math.PI * 2) / total;
   const userHasInteractedRef = useRef(false);
   const lastInteractionTimeRef = useRef(Date.now());
+  const isVisibleRef = useRef(false);
 
-  // Automatic Smooth Card Sliding (Waits full 3 seconds after last user interaction/swipe)
+  // Automatic Smooth Card Sliding (Waits full 4.5 seconds after last user interaction/swipe while section is visible)
   useEffect(() => {
     const autoSlideTimer = setInterval(() => {
-      if (!isDraggingRef.current && Date.now() - lastInteractionTimeRef.current >= 3000) {
+      if (
+        isVisibleRef.current &&
+        !isDraggingRef.current &&
+        Date.now() - lastInteractionTimeRef.current >= 4500
+      ) {
         targetRotationYRef.current -= angleStep;
         lastInteractionTimeRef.current = Date.now();
       }
@@ -159,7 +164,8 @@ export const Spotlight3DSection: React.FC = () => {
     scene.add(deckGroup);
 
     const cardMeshes: THREE.Mesh[] = [];
-    const arcLength = isMobile ? 0.95 : 0.88;
+    // Arc length per card mesh (~2.3° tight gap / half of previous gap)
+    const arcLength = isMobile ? 0.865 : 0.856;
 
     // Create True Cylindrical Arc Mesh Geometry
     const createCylindricalArcGeometry = () => {
@@ -187,7 +193,7 @@ export const Spotlight3DSection: React.FC = () => {
       texture.colorSpace = THREE.SRGBColorSpace;
       texture.minFilter = THREE.LinearFilter;
       texture.magFilter = THREE.LinearFilter;
-      texture.generateMipmaps = true;
+      texture.generateMipmaps = false;
 
       const material = new THREE.MeshStandardMaterial({
         map: texture,
@@ -244,9 +250,9 @@ export const Spotlight3DSection: React.FC = () => {
 
         // Depth scale
         const normZ = (z + cylinderRadius) / cylinderRadius;
-        const minScale = isMobile ? 0.72 : 0.68;
-        const maxScaleBonus = isMobile ? 0.28 : 0.36;
-        const scale = Math.max(minScale, 0.76 + normZ * maxScaleBonus);
+        const minScale = isMobile ? 0.74 : 0.70;
+        const maxScaleBonus = isMobile ? 0.20 : 0.24;
+        const scale = Math.max(minScale, 0.75 + normZ * maxScaleBonus);
         mesh.scale.set(scale, scale, scale);
       });
 
@@ -279,8 +285,16 @@ export const Spotlight3DSection: React.FC = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          const wasVisible = isVisibleRef.current;
+          isVisibleRef.current = entry.isIntersecting;
           isVisible = entry.isIntersecting;
-          if (isVisible) {
+          if (entry.isIntersecting) {
+            lastInteractionTimeRef.current = Date.now();
+            if (!wasVisible) {
+              const nearestIdx = activeIndexRef.current;
+              targetRotationYRef.current = -nearestIdx * angleStep;
+              rotationYRef.current = targetRotationYRef.current;
+            }
             cancelAnimationFrame(animId);
             animate();
           }
@@ -410,23 +424,31 @@ export const Spotlight3DSection: React.FC = () => {
             </span>
           </div>
 
-          <h2 className="hero-heading text-5xl lg:text-7xl font-black uppercase tracking-tighter drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] leading-none my-1 font-['Kanit',sans-serif]">
+          <h2 className="hero-heading text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tighter drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] leading-none my-1 font-['Kanit',sans-serif]">
             {activeItem.title}
           </h2>
 
-          <p className="text-xs md:text-sm font-semibold uppercase tracking-wider text-cyan-200/90 drop-shadow-md mb-4 max-w-md">
+          <p className="text-xs font-medium uppercase tracking-wider text-cyan-200/80 drop-shadow-md mb-3 max-w-md">
             {activeItem.description}
           </p>
 
           {activeItem.link !== '#' ? (
-            <a
+            <WaterButton
               href={activeItem.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="group px-8 py-3 rounded-full bg-white hover:bg-cyan-300 text-black font-black text-xs uppercase tracking-widest transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.6)] flex items-center gap-2 hover:scale-105 active:scale-95 overflow-hidden"
+              waterColor="#0052CC"
+              textColor="#FFFFFF"
+              paddingX={18}
+              paddingY={7}
+              rounded={50}
+              waterAmount={60}
+              glass={{ tint: 'rgba(0, 0, 0, 0.3)', blur: 20, frost: 20 }}
+              borderOptions={{ color: 'rgba(0, 102, 255, 0.8)', stroke: 1.5 }}
+              font={{ fontFamily: 'Kanit, sans-serif', fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em' }}
             >
-              <KineticTextFlip text="LAUNCH" /> <ExternalLink className="w-4 h-4" />
-            </a>
+              LAUNCH <ExternalLink className="w-3.5 h-3.5" />
+            </WaterButton>
           ) : (
             <button
               disabled
@@ -482,23 +504,32 @@ export const Spotlight3DSection: React.FC = () => {
             </span>
           </div>
 
-          <h2 className="hero-heading text-3xl font-black uppercase tracking-tighter leading-none font-['Kanit',sans-serif]">
+          <h2 className="hero-heading text-2xl font-black uppercase tracking-tighter leading-none font-['Kanit',sans-serif]">
             {activeItem.title}
           </h2>
 
-          <p className="text-xs font-semibold uppercase tracking-wider text-cyan-200/90 line-clamp-2">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-cyan-200/80 line-clamp-2">
             {activeItem.description}
           </p>
 
           {activeItem.link !== '#' ? (
-            <a
+            <WaterButton
               href={activeItem.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="group w-full py-2.5 rounded-full bg-white text-black font-black text-xs uppercase tracking-widest flex items-center justify-center gap-1.5 shadow-[0_0_20px_rgba(255,255,255,0.4)] active:scale-95 transition-all mt-1 overflow-hidden"
+              waterColor="#0052CC"
+              textColor="#FFFFFF"
+              paddingX={16}
+              paddingY={6}
+              rounded={50}
+              waterAmount={60}
+              glass={{ tint: 'rgba(0, 0, 0, 0.3)', blur: 20, frost: 20 }}
+              borderOptions={{ color: 'rgba(0, 102, 255, 0.8)', stroke: 1.5 }}
+              font={{ fontFamily: 'Kanit, sans-serif', fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em' }}
+              className="w-full justify-center mt-1"
             >
-              <KineticTextFlip text="LAUNCH" /> <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+              LAUNCH <ExternalLink className="w-3 h-3" />
+            </WaterButton>
           ) : (
             <button
               disabled

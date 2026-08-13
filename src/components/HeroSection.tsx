@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useScroll, useSpring } from 'framer-motion';
 import { FadeIn } from './FadeIn';
-import { Magnet } from './Magnet';
 import { ContactButton } from './ContactButton';
-import { KineticTextFlip } from './KineticTextFlip';
+import { WaterButton } from './WaterButton';
 import spidermanImg from '../images/spiderman.webp';
 
 export const HeroSection: React.FC = () => {
@@ -56,13 +55,13 @@ export const HeroSection: React.FC = () => {
   );
 
   const navLinks = [
-    { label: 'About', href: '#about' },
-    { label: 'Services', href: '#services' },
-    { label: 'Projects', href: '#projects' },
-    { label: 'Contact', href: '#contact' },
+    { label: 'About', href: '#about', waterColor: '#0052CC', borderColor: 'rgba(0, 82, 204, 0.6)' },
+    { label: 'Services', href: '#services', waterColor: '#E50914', borderColor: 'rgba(229, 9, 20, 0.6)' },
+    { label: 'Projects', href: '#projects', waterColor: '#9333EA', borderColor: 'rgba(147, 51, 234, 0.6)' },
+    { label: 'Contact', href: '#contact', waterColor: '#00EEFF', borderColor: 'rgba(0, 238, 255, 0.6)' },
   ];
 
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleNavClick = (e: React.MouseEvent<HTMLElement>, href: string) => {
     if (href.startsWith('#')) {
       e.preventDefault();
       const targetId = href.substring(1);
@@ -187,24 +186,31 @@ export const HeroSection: React.FC = () => {
     <section className="relative h-screen w-full flex flex-col justify-between overflow-x-clip bg-transparent">
       {/* Navbar */}
       <FadeIn delay={0} y={-20} className="w-full z-30">
-        <nav className="w-full flex justify-between items-center px-6 md:px-10 pt-6 md:pt-8">
+        <nav className="w-full flex justify-between items-center px-4 sm:px-6 md:px-10 pt-6 md:pt-8 flex-wrap gap-2">
           {navLinks.map((link) => (
-            <a
+            <WaterButton
               key={link.label}
+              label={link.label.toUpperCase()}
               href={link.href}
               onClick={(e) => handleNavClick(e, link.href)}
-              className="group text-[#D7E2EA] font-medium uppercase tracking-wider text-sm md:text-lg lg:text-[1.4rem] hover:opacity-100 transition-opacity duration-200 cursor-pointer"
-            >
-              <KineticTextFlip text={link.label} />
-            </a>
+              waterColor={link.waterColor}
+              textColor="#FFFFFF"
+              paddingX={22}
+              paddingY={10}
+              rounded={50}
+              waterAmount={65}
+              glass={{ tint: 'rgba(0, 0, 0, 0.25)', blur: 20, frost: 20 }}
+              borderOptions={{ color: link.borderColor, stroke: 1.2 }}
+              font={{ fontFamily: 'Kanit, sans-serif', fontSize: '15px', fontWeight: 600, letterSpacing: '0.05em' }}
+            />
           ))}
         </nav>
       </FadeIn>
 
       {/* Hero Heading Container */}
-      <div className="w-full overflow-hidden flex justify-center items-center relative z-0">
-        <FadeIn delay={0.15} y={40} className="w-full text-center">
-          <h1 className="hero-heading font-black uppercase tracking-tight leading-none whitespace-nowrap w-full text-[14vw] sm:text-[15vw] md:text-[16vw] lg:text-[17.5vw] mt-6 sm:mt-4 md:-mt-5 select-none">
+      <div className="w-full flex justify-center items-center relative z-20 my-2 sm:my-0">
+        <FadeIn delay={0.15} y={30} className="w-full text-center">
+          <h1 className="hero-heading font-black uppercase tracking-tight leading-none whitespace-nowrap w-full text-[11vw] sm:text-[15vw] md:text-[16vw] lg:text-[17.5vw] mt-2 sm:mt-4 md:-mt-5 select-none py-1">
             Hi, i&apos;m Joy
           </h1>
         </FadeIn>
@@ -344,6 +350,8 @@ export const HeroSection: React.FC = () => {
                 <img
                   src={spidermanImg}
                   alt="3D Spider-Man Hero"
+                  fetchPriority="high"
+                  decoding="async"
                   className="w-full h-auto object-contain pointer-events-none drop-shadow-[0_15px_35px_rgba(0,0,0,0.85)] filter brightness-105"
                 />
               </div>

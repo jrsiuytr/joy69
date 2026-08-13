@@ -30,11 +30,18 @@ html, body, #root {
 }
 
 .hero-heading {
+  font-family: 'Saira Extra Condensed', 'Kanit', sans-serif;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   background: linear-gradient(135deg, #FF2E38 0%, #FFFFFF 45%, #3B82F6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.65);
+  filter: drop-shadow(3px 4px 0px #080C1A) drop-shadow(5px 6px 4px rgba(0, 0, 0, 0.9));
 }
 
 .spider-text-crimson {
@@ -71,18 +78,6 @@ html, body, #root {
   background: linear-gradient(180deg, #EF4444 0%, #1E40AF 100%);
 }
 
-/* 3D Kinetic Typography Utilities */
-.rotate-x-90 {
-  transform: rotateX(90deg);
-}
-
-.-rotate-x-90 {
-  transform: rotateX(-90deg);
-}
-
-.rotate-x-0 {
-  transform: rotateX(0deg);
-}
 
 /* GPU Acceleration & Performance Utilities */
 .gpu-layer {
@@ -117,9 +112,12 @@ html, body, #root {
   animation-play-state: paused;
 }
 
-/* Hide default browser cursor completely on desktop so ONLY custom Arrow Cursor shows everywhere */
-@media (min-width: 640px) {
-  *, *::before, *::after, html, body, #root, a, button, input, select, textarea, [role="button"], .cursor-pointer {
+/* Hide default browser cursor ONLY when desktop fine pointer is active AND custom cursor is enabled */
+@media (hover: hover) and (pointer: fine) {
+  body.custom-cursor-active,
+  body.custom-cursor-active *,
+  body.custom-cursor-active *::before,
+  body.custom-cursor-active *::after {
     cursor: none !important;
   }
 }

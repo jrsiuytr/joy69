@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import xIcon from './images/x.svg';
 import telegramIcon from './images/telegram-svgrepo-com.svg';
 import discordIcon from './images/discord-communication-interaction-message-network-svgrepo-com.svg';
@@ -16,6 +17,13 @@ import { ContactButton } from './components/ContactButton';
 import { Mail } from 'lucide-react';
 
 export function App() {
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+  }, []);
+
   return (
     <div className="w-full bg-[#08080E] min-h-screen text-[#D7E2EA] overflow-x-clip font-['Kanit',sans-serif] relative md:cursor-none">
       {/* Spider-Man Custom Cursor with Web Shockwave Click Effects */}
@@ -90,7 +98,7 @@ export function App() {
                   <img src={xIcon} alt="X" className="w-4 h-4 invert" />
                 </a>
                 <a
-                  href="#"
+                  href="https://t.me/joycr7siu"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2.5 rounded-full border border-white/10 hover:border-white/40 hover:bg-white/5 transition-colors flex items-center justify-center"
@@ -99,7 +107,7 @@ export function App() {
                   <img src={telegramIcon} alt="Telegram" className="w-4 h-4" />
                 </a>
                 <a
-                  href="#"
+                  href="https://discord.gg/v6sXzSvDBK"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2.5 rounded-full border border-white/10 hover:border-white/40 hover:bg-white/5 transition-colors flex items-center justify-center"

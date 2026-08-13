@@ -12,6 +12,14 @@ export const SpiderWebLoader: React.FC<SpiderWebLoaderProps> = ({ onComplete }) 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
+    // Disable browser automatic scroll restoration to avoid starting in middle of page on refresh/load
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
+    // Always reset scroll position to top on mount
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+
     // Lock body scroll during initial load
     document.body.style.overflow = 'hidden';
 
@@ -33,6 +41,8 @@ export const SpiderWebLoader: React.FC<SpiderWebLoaderProps> = ({ onComplete }) 
           setTimeout(() => {
             setPhase('complete');
             document.body.style.overflow = '';
+            // Ensure scroll position lands on the main home section at the top after loading finishes
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
             if (onComplete) onComplete();
           }, 450);
         }, 80);
@@ -91,9 +101,7 @@ export const SpiderWebLoader: React.FC<SpiderWebLoaderProps> = ({ onComplete }) 
       mouseX += (targetMouseX - mouseX) * 0.06;
       mouseY += (targetMouseY - mouseY) * 0.06;
 
-      const mDx = mouseX - centerX;
-      const mDy = mouseY - centerY;
-      const mDist = Math.sqrt(mDx * mDx + mDy * mDy);
+
 
       // Build Dynamic Flexible Web Node Mesh
       const nodeGrid: { x: number; y: number; originX: number; originY: number }[][] = [];
@@ -222,9 +230,8 @@ export const SpiderWebLoader: React.FC<SpiderWebLoaderProps> = ({ onComplete }) 
         transition={{ duration: 0.7, ease: [0.76, 0, 0.24, 1] }}
         className="fixed inset-0 z-[9999] bg-[#04050A] flex flex-col items-center justify-center overflow-hidden select-none"
       >
-        {/* Deep ambient red & blue glowing background pulse */}
-        <div className="absolute inset-0 bg-radial from-red-950/40 via-[#060813] to-[#04050A] pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-red-600/25 via-purple-600/20 to-cyan-500/25 blur-[140px] rounded-full pointer-events-none" />
+        {/* Deep ambient background */}
+        <div className="absolute inset-0 bg-[#04050A] pointer-events-none" />
 
         {/* 3D Spider Net Container with perspective zoom effect */}
         <motion.div

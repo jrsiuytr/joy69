@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ExternalLink, RotateCcw, Sparkles } from 'lucide-react';
-import { KineticTextFlip } from './KineticTextFlip';
+import { WaterButton } from './WaterButton';
 
 import gtaviImg from '../images/games/gta6.webp';
 import fc27Img from '../images/games/fc27.webp';
@@ -265,17 +265,25 @@ const MarqueeCard: React.FC<MarqueeCardProps> = ({ item }) => {
           </div>
 
           {/* Action Link Button */}
-          <div className="z-10">
-            <a
+          <div className="z-10 w-full flex justify-center">
+            <WaterButton
               href={item.link}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="group w-full flex items-center justify-center gap-2 py-2.5 sm:py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-xs sm:text-sm shadow-lg shadow-purple-600/25 hover:shadow-purple-500/40 transition-all transform hover:-translate-y-0.5 active:translate-y-0 overflow-hidden"
+              waterColor="#8B5CF6"
+              textColor="#FFFFFF"
+              paddingX={20}
+              paddingY={10}
+              rounded={50}
+              waterAmount={60}
+              glass={{ tint: 'rgba(124, 58, 237, 0.3)', blur: 20, frost: 20 }}
+              borderOptions={{ color: 'rgba(167, 139, 250, 0.6)', stroke: 1.5 }}
+              font={{ fontFamily: 'Kanit, sans-serif', fontSize: '13px', fontWeight: 600, letterSpacing: '0.05em' }}
+              className="w-full justify-center"
             >
-              <KineticTextFlip text="Visit Website / Game" />
-              <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </a>
+              Visit Website / Game <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </WaterButton>
           </div>
         </div>
       </div>

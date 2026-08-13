@@ -18,6 +18,8 @@ interface Project {
   col1Img2: string;
   col2Img: string;
   link: string;
+  waterColor?: string;
+  borderColor?: string;
 }
 
 const projectsData: Project[] = [
@@ -29,6 +31,8 @@ const projectsData: Project[] = [
     col1Img2: utexob,
     col2Img: utexofe,
     link: 'https://utexo.com/',
+    waterColor: '#0052CC',
+    borderColor: 'rgba(0, 102, 255, 0.7)',
   },
   {
     number: '02',
@@ -36,13 +40,13 @@ const projectsData: Project[] = [
     category: 'Alpha Tester, OG pass holder',
     link: 'https://www.bloom.social/',
     col1Img1: bloom,
-
     col1Img2:
       'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055723_5ceda0b8-d9c2-4665-b2e3-83ba19ba76d1.png&w=1280&q=85',
     col2Img:
       'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055753_adc5dcbd-a8e6-49c0-b43a-9b030d835cea.png&w=1280&q=85',
+    waterColor: '#9333EA',
+    borderColor: 'rgba(147, 51, 234, 0.7)',
   },
-
   {
     number: '03',
     name: 'NaoX Protocol (prev. Naoris)',
@@ -51,7 +55,8 @@ const projectsData: Project[] = [
     col1Img1: nao1,
     col1Img2: naoban,
     col2Img: naol,
-
+    waterColor: '#E50914',
+    borderColor: 'rgba(229, 9, 20, 0.7)',
   },
 ];
 
@@ -101,7 +106,7 @@ const ProjectCard: React.FC<CardProps> = ({ project, index, totalCards, progress
             </div>
           </div>
 
-          <LiveProjectButton href={project.link} />
+          <LiveProjectButton href={project.link} waterColor={project.waterColor} borderColor={project.borderColor} />
         </div>
 
         {/* Bottom Row: 2-column image grid */}

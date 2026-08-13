@@ -42,52 +42,38 @@ export const SpiderManVenomBackground: React.FC = () => {
 
     const isMobile = window.innerWidth < 640;
 
-    // 1. Falling Soft Embers (Reduced particle count by 80% for ultra-light site performance)
-    const emberCount = isMobile ? 2 : 8;
+    // 1. Falling Soft Embers (Lightweight count for ultra-smooth performance)
+    const emberCount = isMobile ? 1 : 4;
     const embers: { x: number; y: number; vy: number; vx: number; size: number; alpha: number }[] = [];
     for (let i = 0; i < emberCount; i++) {
       embers.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vy: 1.2 + Math.random() * 2.2,
-        vx: (Math.random() - 0.4) * 0.8,
-        size: isMobile ? 1.0 + Math.random() * 1.2 : 1.2 + Math.random() * 2.0,
-        alpha: 0.3 + Math.random() * 0.5,
+        vy: 1.2 + Math.random() * 1.8,
+        vx: (Math.random() - 0.4) * 0.6,
+        size: isMobile ? 1.0 : 1.4,
+        alpha: 0.3 + Math.random() * 0.4,
       });
     }
 
     let time = 0;
 
-    // 2. Main Render Loop (60 FPS)
+    // 2. Main Render Loop (60 FPS Lightweight)
     const render = () => {
       time += 0.015;
-      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = '#05060B';
+      ctx.fillRect(0, 0, width, height);
 
       // Smooth mouse position interpolation
       mouseX += (targetMouseX - mouseX) * 0.05;
       mouseY += (targetMouseY - mouseY) * 0.05;
 
-      // A. Deep Dark Atmosphere Background
-      const bgGrad = ctx.createRadialGradient(
-        width * 0.5,
-        height * 0.4,
-        100,
-        width * 0.5,
-        height * 0.5,
-        Math.max(width, height)
-      );
-      bgGrad.addColorStop(0, 'rgba(10, 16, 32, 0.4)');
-      bgGrad.addColorStop(0.6, 'rgba(8, 12, 22, 0.7)');
-      bgGrad.addColorStop(1, 'rgba(4, 6, 12, 0.95)');
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, width, height);
-
-      // B. ELEGANT REALISTIC FLEXIBLE SPIDER-MAN WEB MESH
+      // B. FLEXIBLE SPIDER-MAN WEB MESH
       const centerX = width * 0.48;
       const centerY = height * 0.42;
-      const numRays = isMobile ? 12 : 18;
-      const numRings = isMobile ? 5 : 8;
-      const maxRadius = Math.max(width, height) * 0.65;
+      const numRays = isMobile ? 8 : 10;
+      const numRings = isMobile ? 3 : 4;
+      const maxRadius = Math.max(width, height) * 0.6;
 
       ctx.save();
       // Fade web mesh slightly as user scrolls down into Venom territory

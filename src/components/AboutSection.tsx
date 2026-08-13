@@ -1,41 +1,25 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { FadeIn } from './FadeIn';
 import { AnimatedText } from './AnimatedText';
 import { ContactButton } from './ContactButton';
 
 export const AboutSection: React.FC = () => {
   const aboutParagraphText =
-    "With more than two years of experience in design, I focus on web design and user experience. I truly enjoy working with clients who aim to stand out and present their best image. Let me handle this for you!";
+    `I am a B.Tech. graduate in Computer Science and Engineering, with academic experience from 2016 to 2020. After college, I explored community building and gaming more seriously. In 2022, I built and managed a Discord server with over 5,000 members for esports and gaming, mainly around PUBG tournaments and scrims. I also worked on my own YouTube channel and reached the finalist stage in the JioGames FC Mobile Invitational Tournament.
+
+In 2024, I stepped into Web3, started exploring airdrops, and developed a stronger interest in blockchain. That same curiosity pushed me back into building, so I began learning full-stack development and Web3 development again with the goal of creating useful products and communities.
+
+My passions include gaming, blockchain development, crypto trading, and community building. I enjoy learning, creating, and growing ideas from the ground up, and I am currently focused on strengthening my full-stack and blockchain development skills.
+
+With more than two years of experience in design, I focus on web design and user experience. I truly enjoy working with clients who aim to stand out and present their best image. Let me handle this for you!`;
 
   return (
     <section
       id="about"
       className="relative min-h-screen w-full bg-transparent px-5 sm:px-8 md:px-10 py-24 sm:py-28 md:py-32 flex flex-col items-center justify-center overflow-hidden z-20"
     >
-      {/* Section Background Darkening Spotlight Overlay - Seamless Transparent Top & Bottom Blend */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ amount: 0.2 }}
-        className="absolute inset-0 bg-gradient-to-b from-transparent via-[#060918]/95 via-40% to-transparent pointer-events-none z-0"
-      />
-
-      {/* Top Seam Soft Ambient Light Transition */}
-      <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-transparent via-purple-900/10 to-transparent blur-2xl pointer-events-none z-0" />
-
-      {/* Bottom Seam Soft Ambient Light Transition into Services Section */}
-      <div className="absolute bottom-0 inset-x-0 h-44 bg-gradient-to-t from-transparent via-purple-900/15 to-transparent blur-2xl pointer-events-none z-0" />
-
-      {/* Ambient Red/Purple/Cyan Glowing Spotlight Aura */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        whileInView={{ opacity: 0.7, scale: 1 }}
-        transition={{ duration: 1 }}
-        viewport={{ amount: 0.2 }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] max-w-4xl h-[340px] bg-gradient-to-r from-red-600/30 via-purple-600/25 to-cyan-500/30 blur-[110px] rounded-full pointer-events-none z-0"
-      />
+      {/* Clean Dark Section Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050711]/80 to-transparent pointer-events-none z-0" />
 
       {/* Decorative 3D images in 4 corners */}
       {/* Top-left: Moon icon */}
@@ -98,16 +82,16 @@ export const AboutSection: React.FC = () => {
             className="hero-heading font-black uppercase leading-none tracking-tight text-center"
             style={{ fontSize: 'clamp(3rem, 12vw, 160px)' }}
           >
-            About me
+            About
           </h2>
         </FadeIn>
 
         {/* Description Glass Spotlight Card */}
         <FadeIn delay={0.15} y={30} className="w-full flex justify-center">
-          <div className="mt-8 sm:mt-10 md:mt-12 px-6 sm:px-12 md:px-16 py-8 sm:py-10 md:py-12 rounded-3xl bg-[#060814]/85 border border-white/15 shadow-[0_0_70px_rgba(0,0,0,0.85)] backdrop-blur-xl max-w-5xl sm:max-w-6xl w-full mx-auto relative z-20 group hover:border-red-500/30 transition-all duration-500">
+          <div className="mt-8 sm:mt-10 md:mt-12 px-6 sm:px-10 md:px-14 py-6 sm:py-8 md:py-10 rounded-3xl bg-[#060814]/85 border border-white/15 shadow-[0_0_70px_rgba(0,0,0,0.85)] backdrop-blur-xl max-w-4xl sm:max-w-5xl w-full mx-auto relative z-20 group hover:border-red-500/30 transition-all duration-500">
             <AnimatedText
               text={aboutParagraphText}
-              className="text-white text-xl sm:text-2xl md:text-3xl lg:text-[2.05rem] font-bold text-center leading-relaxed tracking-wide select-none drop-shadow-lg"
+              className="text-white text-base sm:text-lg md:text-xl font-normal text-left sm:text-center leading-relaxed sm:leading-loose tracking-wide select-none drop-shadow-md"
             />
           </div>
         </FadeIn>

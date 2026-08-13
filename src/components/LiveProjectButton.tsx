@@ -1,27 +1,40 @@
 import React from 'react';
-import { KineticTextFlip } from './KineticTextFlip';
+import { WaterButton } from './WaterButton';
 
 interface LiveProjectButtonProps {
   href?: string;
   onClick?: () => void;
   className?: string;
+  waterColor?: string;
+  borderColor?: string;
 }
 
 export const LiveProjectButton: React.FC<LiveProjectButtonProps> = ({
   href = '#',
   onClick,
   className = '',
+  waterColor = '#1D4ED8',
+  borderColor = 'rgba(59, 130, 246, 0.7)',
 }) => {
   return (
-    <a
+    <WaterButton
+      label="PROJECT'S WEBSITE"
       href={href}
       target="_blank"
       rel="noopener noreferrer"
       onClick={onClick}
-      className={`group inline-block rounded-full border-2 border-[#D7E2EA] text-[#D7E2EA] font-medium uppercase tracking-widest px-8 py-3 sm:px-10 sm:py-3.5 text-sm sm:text-base hover:bg-[#D7E2EA]/10 transition-colors duration-200 cursor-pointer overflow-hidden ${className}`}
-    >
-      <KineticTextFlip text="Project's Website" />
-    </a>
+      waterColor={waterColor}
+      textColor="#FFFFFF"
+      paddingX={26}
+      paddingY={12}
+      rounded={100}
+      waterAmount={55}
+      glass={{ tint: 'rgba(0, 0, 0, 0.3)', blur: 25, frost: 20 }}
+      borderOptions={{ color: borderColor, stroke: 1.5 }}
+      font={{ fontFamily: 'Kanit, sans-serif', fontSize: '14px', fontWeight: 600, letterSpacing: '0.06em' }}
+      className={className}
+    />
   );
 };
 
+export default LiveProjectButton;

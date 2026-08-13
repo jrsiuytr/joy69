@@ -1,5 +1,5 @@
 import React from 'react';
-import { KineticTextFlip } from './KineticTextFlip';
+import { WaterButton } from './WaterButton';
 
 interface ContactButtonProps {
   onClick?: () => void;
@@ -7,7 +7,8 @@ interface ContactButtonProps {
 }
 
 export const ContactButton: React.FC<ContactButtonProps> = ({ onClick, className = '' }) => {
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
     if (onClick) {
       onClick();
     } else {
@@ -21,18 +22,22 @@ export const ContactButton: React.FC<ContactButtonProps> = ({ onClick, className
   };
 
   return (
-    <button
+    <WaterButton
+      label="CONTACT ME"
       onClick={handleClick}
-      className={`group relative rounded-full text-white font-medium uppercase tracking-widest px-8 py-3 sm:px-10 sm:py-3.5 md:px-12 md:py-4 text-xs sm:text-sm md:text-base transition-transform duration-300 hover:scale-105 active:scale-95 cursor-pointer overflow-hidden ${className}`}
-      style={{
-        background: 'linear-gradient(123deg, #18011F 7%, #B600A8 37%, #7621B0 72%, #BE4C00 100%)',
-        boxShadow: '0px 4px 4px rgba(181, 1, 167, 0.25), inset 4px 4px 12px #7721B1',
-        outline: '2px solid white',
-        outlineOffset: '-3px',
-      }}
-    >
-      <KineticTextFlip text="Contact Me" />
-    </button>
+      waterColor="#E50914"
+      textColor="#FFFFFF"
+      paddingX={32}
+      paddingY={14}
+      rounded={100}
+      waterAmount={65}
+      glass={{ tint: 'rgba(30, 0, 0, 0.4)', blur: 30, frost: 25 }}
+      borderOptions={{ color: 'rgba(255, 46, 56, 0.8)', stroke: 1.5 }}
+      shadowOptions={{ color: '#E50914', intensity: 35 }}
+      font={{ fontFamily: 'Kanit, sans-serif', fontSize: '15px', fontWeight: 700, letterSpacing: '0.08em' }}
+      className={className}
+    />
   );
 };
 
+export default ContactButton;

@@ -24,15 +24,20 @@ export const CustomCursor: React.FC = () => {
   const smoothY = useSpring(mouseY, springConfig);
 
   useEffect(() => {
-    // Disable on mobile/touch screens for maximum mobile performance
-    if (window.matchMedia('(pointer: coarse)').matches) return;
+    const isTouchDevice = () => window.matchMedia('(pointer: coarse)').matches;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isVisible) setIsVisible(true);
+      if (isTouchDevice()) {
+        document.body.classList.remove('custom-cursor-active');
+        setIsVisible(false);
+        return;
+      }
+
+      document.body.classList.add('custom-cursor-active');
+      setIsVisible(true);
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
 
-      // Check if hovering over clickable elements
       const target = e.target as HTMLElement | null;
       if (target) {
         const isClickable = !!target.closest('a, button, input, select, textarea, [role="button"], .cursor-pointer');
@@ -41,8 +46,8 @@ export const CustomCursor: React.FC = () => {
     };
 
     const handleMouseDown = (e: MouseEvent) => {
+      if (isTouchDevice()) return;
       setIsClicking(true);
-      // Spawn Spider-Web Net Shockwave Ripple at click coordinates
       const newRipple = {
         id: ++rippleIdRef.current,
         x: e.clientX,
@@ -56,23 +61,39 @@ export const CustomCursor: React.FC = () => {
     };
 
     const handleMouseLeave = () => {
+      document.body.classList.remove('custom-cursor-active');
       setIsVisible(false);
     };
 
+    const handleMouseEnter = (e?: MouseEvent | Event) => {
+      if (!isTouchDevice()) {
+        document.body.classList.add('custom-cursor-active');
+        setIsVisible(true);
+        if (e && 'clientX' in e) {
+          mouseX.set((e as MouseEvent).clientX);
+          mouseY.set((e as MouseEvent).clientY);
+        }
+      }
+    };
+
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('mouseenter', handleMouseEnter, { passive: true });
     window.addEventListener('mousedown', handleMouseDown, { passive: true });
     window.addEventListener('mouseup', handleMouseUp, { passive: true });
+    window.addEventListener('focus', handleMouseEnter, { passive: true });
     document.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
+      document.body.classList.remove('custom-cursor-active');
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseenter', handleMouseEnter);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('focus', handleMouseEnter);
       document.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [mouseX, mouseY, isVisible]);
+  }, [mouseX, mouseY]);
 
-  // Clean up finished ripples after animation duration
   const removeRipple = (id: number) => {
     setRipples((prev) => prev.filter((r) => r.id !== id));
   };
@@ -80,7 +101,7 @@ export const CustomCursor: React.FC = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
+    <div className="fixed inset-0 pointer-events-none z-[999999] overflow-hidden">
       {/* 1. Metallic Silver Spider-Web Net Shockwave Ripples on Click */}
       <AnimatePresence>
         {ripples.map((ripple) => (

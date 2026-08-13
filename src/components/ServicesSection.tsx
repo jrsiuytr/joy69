@@ -46,17 +46,8 @@ export const ServicesSection: React.FC = () => {
       id="services"
       className="relative z-20 w-full px-5 sm:px-8 md:px-10 py-24 sm:py-28 md:py-36 text-[#D7E2EA] overflow-hidden"
     >
-      {/* Section Background Darkening Overlay - Smooth Transparent Top & Bottom Fade */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#060918]/95 via-35% to-transparent pointer-events-none z-0" />
-
-      {/* Top Seam Soft Fade Mist (Matching About Section) */}
-      <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-transparent via-purple-900/10 to-transparent blur-2xl pointer-events-none z-0" />
-
-      {/* Bottom Seam Soft Fade Mist into Projects Section */}
-      <div className="absolute bottom-0 inset-x-0 h-48 bg-gradient-to-t from-transparent via-[#060918]/80 to-transparent blur-2xl pointer-events-none z-0" />
-
-      {/* Ambient Red/Purple Spotlight Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] max-w-5xl h-[450px] bg-gradient-to-r from-red-600/15 via-purple-600/20 to-cyan-500/15 blur-[120px] rounded-full pointer-events-none z-0" />
+      {/* Clean Dark Section Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050711]/80 to-transparent pointer-events-none z-0" />
 
       <div className="max-w-5xl mx-auto relative z-10">
         <FadeIn delay={0} y={40}>
