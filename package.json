@@ -3,13 +3,13 @@
   "version": "0.0.1",
   "private": true,
   "description": "Welcome to my portflio.",
-  "homepage": "https://github.com/mrarindam/joy69#readme",
+  "homepage": "https://github.com/jrsiuytr/joy69#readme",
   "bugs": {
-    "url": "https://github.com/mrarindam/joy69/issues"
+    "url": "https://github.com/jrsiuytr/joy69/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mrarindam/joy69.git"
+    "url": "git+https://github.com/jrsiuytr/joy69.git"
   },
   "license": "ISC",
   "author": "",
