@@ -107,3 +107,5 @@ With more than two years of experience in design, I focus on web design and user
   );
 };
 
+export default AboutSection;
+

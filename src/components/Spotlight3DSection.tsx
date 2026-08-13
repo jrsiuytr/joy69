@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { ExternalLink, Flame, Sparkles } from 'lucide-react';
 import { WaterButton } from './WaterButton';
+import { getDeviceInfo } from '../utils/device';
 import utexo1Img from '../images/utexo1.webp';
 import opensea from '../images/opensea.webp';
 import debank from '../images/debank.webp';
@@ -145,9 +146,10 @@ export const Spotlight3DSection: React.FC = () => {
     const camera = new THREE.PerspectiveCamera(isMobile ? 42 : 35, width / height, 0.1, 100);
     camera.position.set(cameraX, cameraY, cameraZ);
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
+    const device = getDeviceInfo();
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: !device.isLowEnd, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setPixelRatio(device.targetDPR);
     mount.appendChild(renderer.domElement);
 
     // 2. Clean Natural Lighting
@@ -338,6 +340,14 @@ export const Spotlight3DSection: React.FC = () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
+      cardMeshes.forEach((mesh) => {
+        if (mesh.material) {
+          const mat = mesh.material as THREE.MeshStandardMaterial;
+          if (mat.map) mat.map.dispose();
+          mat.dispose();
+        }
+      });
+      sharedGeo.dispose();
       if (renderer.domElement.parentNode) {
         renderer.domElement.parentNode.removeChild(renderer.domElement);
       }
@@ -407,7 +417,7 @@ export const Spotlight3DSection: React.FC = () => {
         {/* THREE.JS 3D WebGL Canvas (Full Width) */}
         <div
           ref={mountRef}
-          className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing touch-none z-10"
+          className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing touch-pan-y z-10"
           onPointerDown={handlePointerDown}
         />
 

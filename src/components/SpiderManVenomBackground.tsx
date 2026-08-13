@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { getDeviceInfo } from '../utils/device';
 
 export const SpiderManVenomBackground: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -8,6 +9,8 @@ export const SpiderManVenomBackground: React.FC = () => {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    const device = getDeviceInfo();
 
     let animationFrameId: number;
     let width = (canvas.width = window.innerWidth);
@@ -37,13 +40,12 @@ export const SpiderManVenomBackground: React.FC = () => {
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     handleScroll();
 
-    const isMobile = window.innerWidth < 640;
-
-    // 1. Falling Soft Embers (Lightweight count for ultra-smooth performance)
-    const emberCount = isMobile ? 1 : 4;
+    // 1. Falling Soft Embers (Adaptive count for high-end vs low-end devices)
+    const baseEmberCount = device.isMobile ? 1 : 5;
+    const emberCount = Math.max(1, Math.round(baseEmberCount * device.particleMultiplier));
     const embers: { x: number; y: number; vy: number; vx: number; size: number; alpha: number }[] = [];
     for (let i = 0; i < emberCount; i++) {
       embers.push({
@@ -51,15 +53,22 @@ export const SpiderManVenomBackground: React.FC = () => {
         y: Math.random() * height,
         vy: 1.2 + Math.random() * 1.8,
         vx: (Math.random() - 0.4) * 0.6,
-        size: isMobile ? 1.0 : 1.4,
+        size: device.isMobile ? 1.0 : 1.4,
         alpha: 0.3 + Math.random() * 0.4,
       });
     }
 
     let time = 0;
+    let frameCount = 0;
 
-    // 2. Main Render Loop (60 FPS Lightweight)
+    // 2. Main Render Loop (60 FPS Lightweight / 30 FPS Low-End)
     const render = () => {
+      frameCount++;
+      if (device.isLowEnd && frameCount % 2 !== 0) {
+        animationFrameId = requestAnimationFrame(render);
+        return;
+      }
+
       time += 0.015;
       ctx.fillStyle = '#05060B';
       ctx.fillRect(0, 0, width, height);
@@ -68,11 +77,11 @@ export const SpiderManVenomBackground: React.FC = () => {
       mouseX += (targetMouseX - mouseX) * 0.05;
       mouseY += (targetMouseY - mouseY) * 0.05;
 
-      // B. FLEXIBLE SPIDER-MAN WEB MESH
+      // B. FLEXIBLE SPIDER-MAN WEB MESH (Ultra-Optimized)
       const centerX = width * 0.48;
       const centerY = height * 0.42;
-      const numRays = isMobile ? 8 : 10;
-      const numRings = isMobile ? 3 : 4;
+      const numRays = device.isLowEnd ? 6 : device.isMobile ? 6 : 8;
+      const numRings = 3;
       const maxRadius = Math.max(width, height) * 0.6;
 
       ctx.save();
@@ -111,20 +120,10 @@ export const SpiderManVenomBackground: React.FC = () => {
         bgNodeGrid.push(ringNodes);
       }
 
-      // 1. Draw Radial Elastic Web Rays
+      // 1. Draw Radial Elastic Web Rays (Fast solid strokes)
       ctx.lineWidth = 1.3;
       for (let i = 0; i < numRays; i++) {
-        const rayGrad = ctx.createLinearGradient(
-          bgNodeGrid[0][i].x,
-          bgNodeGrid[0][i].y,
-          bgNodeGrid[numRings][i].x,
-          bgNodeGrid[numRings][i].y
-        );
-        rayGrad.addColorStop(0, `rgba(255, 255, 255, ${webAlpha * 1.2})`);
-        rayGrad.addColorStop(0.5, i % 2 === 0 ? `rgba(239, 68, 68, ${webAlpha})` : `rgba(56, 189, 248, ${webAlpha})`);
-        rayGrad.addColorStop(1, `rgba(255, 255, 255, ${webAlpha * 0.3})`);
-
-        ctx.strokeStyle = rayGrad;
+        ctx.strokeStyle = i % 2 === 0 ? `rgba(239, 68, 68, ${webAlpha * 0.85})` : `rgba(56, 189, 248, ${webAlpha * 0.85})`;
         ctx.beginPath();
         ctx.moveTo(bgNodeGrid[0][i].x, bgNodeGrid[0][i].y);
 
@@ -182,7 +181,7 @@ export const SpiderManVenomBackground: React.FC = () => {
         ctx.save();
         ctx.globalAlpha = symbioteAlpha;
 
-        const numTendrils = isMobile ? 4 : 8;
+        const numTendrils = device.isLowEnd ? 3 : device.isMobile ? 4 : 8;
         for (let t = 0; t < numTendrils; t++) {
           const isTop = t % 2 === 0;
           const startX = (t / numTendrils) * width;
@@ -197,7 +196,7 @@ export const SpiderManVenomBackground: React.FC = () => {
 
           // Outer Deep Blue/Red Neon Edge Glow
           ctx.strokeStyle = t % 2 === 0 ? 'rgba(37, 99, 235, 0.4)' : 'rgba(220, 38, 38, 0.4)';
-          ctx.lineWidth = isMobile ? 8 : 12;
+          ctx.lineWidth = device.isMobile ? 8 : 12;
           ctx.lineCap = 'round';
 
           ctx.beginPath();
@@ -207,7 +206,7 @@ export const SpiderManVenomBackground: React.FC = () => {
 
           // Inner Viscous Black Symbiote Core
           ctx.strokeStyle = '#050711';
-          ctx.lineWidth = isMobile ? 4 : 8;
+          ctx.lineWidth = device.isMobile ? 4 : 8;
           ctx.beginPath();
           ctx.moveTo(startX, startY);
           ctx.quadraticCurveTo(cpX, cpY, endX, endY);

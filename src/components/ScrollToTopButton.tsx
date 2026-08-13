@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp } from 'lucide-react';
+import { smoothScrollTo } from '../utils/smoothScroll';
 
 export const ScrollToTopButton: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -19,34 +20,10 @@ export const ScrollToTopButton: React.FC = () => {
   }, []);
 
   const scrollToTop = () => {
-    // Disable CSS scroll-behavior during programmatic JS smooth scroll to prevent vibration conflict
-    document.documentElement.style.scrollBehavior = 'auto';
-
-    const startY = window.scrollY || window.pageYOffset;
-    const duration = 900; // 900ms smooth gliding ease-in-out transition
-    let startTime: number | null = null;
-
-    const easeInOutQuint = (t: number) => {
-      return t < 0.5 ? 16 * t * t * t * t * t : 1 - Math.pow(-2 * t + 2, 5) / 2;
-    };
-
-    const step = (currentTime: number) => {
-      if (!startTime) startTime = currentTime;
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const easeProgress = easeInOutQuint(progress);
-
-      window.scrollTo(0, startY * (1 - easeProgress));
-
-      if (progress < 1) {
-        requestAnimationFrame(step);
-      } else {
-        document.documentElement.style.scrollBehavior = '';
-        window.history.pushState(null, '', '#');
-      }
-    };
-
-    requestAnimationFrame(step);
+    smoothScrollTo(0, 1100);
+    if (window.history.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
   };
 
   return (

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import React, { useEffect, useRef, type CSSProperties } from "react";
+import { getDeviceInfo } from "../utils/device";
 
 const DEFAULTS = {
     label: "WATER BUTTON",
@@ -36,12 +37,7 @@ const DEFAULT_FONT: CSSProperties = {
 
 const COLUMNS = 64;
 const SUBSTEPS = 6;
-const GRAVITY = 6000;
-const VISCOSITY = 2.6;
 const CURSOR_REACH = 46;
-const SWEEP_FORCE = 3;
-const DIP_FORCE = 1.5;
-const CLICK_FORCE = 260;
 const MAX_KICK = 8;
 const MAX_FILL = 0.9;
 const STILL = 0.05;
@@ -50,7 +46,6 @@ const SLEEP_FRAMES = 20;
 const MAX_DROPS = 96;
 const DROP_GRAVITY = 1400;
 const DROP_DRAG = 0.6;
-const DROP_VOLUME = 0.18;
 const DROP_RADIUS = 1.25;
 const SPRAY_THRESHOLD = 1.6;
 const SPRAY_RATE = 0.5;
@@ -201,8 +196,10 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
     const rootRef = useRef<HTMLDivElement & HTMLAnchorElement>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+    const device = getDeviceInfo();
     const tint = glass?.tint ?? DEFAULTS.glass.tint;
-    const blur = glass?.blur ?? DEFAULTS.glass.blur;
+    const rawBlur = glass?.blur ?? DEFAULTS.glass.blur;
+    const blur = device.enableHeavyBlur ? rawBlur : Math.min(rawBlur, 10);
     const frost = glass?.frost ?? DEFAULTS.glass.frost;
     const borderColor = borderOptions?.color ?? DEFAULTS.borderOptions.color;
     const borderStroke = Math.max(
@@ -237,7 +234,6 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
 
         const h = new Float32Array(COLUMNS);
         const u = new Float32Array(COLUMNS + 1);
-        const flux = new Float32Array(COLUMNS + 1);
         let rest = 0;
         let colW = 1;
 
@@ -299,7 +295,7 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
             u.fill(0);
             dropLive.fill(0);
             flying = 0;
-            asleep = true;
+            asleep = false;
             quiet = 0;
         }
 
@@ -314,10 +310,13 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
             quiet = 0;
         }
 
-        function drive(dt: number) {
+        function drive() {
             const reach = CURSOR_REACH;
-            const kx = clampKick(pointer.vx) * 35;
-            const ky = clampKick(pointer.vy) * 35;
+            const kx = clampKick(pointer.vx);
+            const ky = clampKick(pointer.vy);
+            const speed = Math.sqrt(kx * kx + ky * ky);
+            if (speed < 0.02) return;
+
             const first = Math.max(1, Math.floor((pointer.x - reach) / colW));
             const last = Math.min(
                 COLUMNS - 1,
@@ -327,10 +326,8 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
                 const dx = i * colW - pointer.x;
                 const fall = 1 - Math.abs(dx) / reach;
                 if (fall <= 0) continue;
-                if (pointer.y < H - h[i] - reach) continue;
-                const bite = fall * ripple * dt;
-                u[i] += kx * SWEEP_FORCE * bite;
-                u[i] += Math.sign(dx) * ky * DIP_FORCE * bite;
+                const push = (ky * 3.5 + Math.sign(dx || 1) * kx * 2.0) * Math.cos((dx / reach) * (Math.PI / 2));
+                u[i] += push;
             }
         }
 
@@ -342,7 +339,7 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
                 const dx = i * colW - px;
                 const fall = 1 - Math.abs(dx) / reach;
                 if (fall <= 0) continue;
-                u[i] += Math.sign(dx || 1) * CLICK_FORCE * fall * ripple;
+                u[i] += 120 * Math.cos((dx / reach) * (Math.PI / 2));
             }
         }
 
@@ -363,7 +360,6 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
             dropY[slot] = H - h[i] - DROP_RADIUS;
             dropVX[slot] = vx;
             dropVY[slot] = vy;
-            h[i] -= DROP_VOLUME / colW;
         }
 
         function spray(dt: number) {
@@ -435,9 +431,7 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
                     Math.min(COLUMNS - 1, Math.floor(dropX[d] / colW))
                 );
 
-                // Water volume safety: if droplet hits water surface OR falls past bottom, return volume to h[i]
                 if ((dropVY[d] > 0 && dropY[d] >= H - h[i]) || dropY[d] > H + 20) {
-                    h[i] += DROP_VOLUME / colW;
                     if (i > 0 && i < COLUMNS && dropVY[d] > 0) u[i] += dropVX[d] * 0.2;
                     dropLive[d] = 0;
                     flying--;
@@ -450,26 +444,27 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
             fall(dt);
 
             const sub = dt / SUBSTEPS;
-            const minWaterHeight = Math.max(3, rest * 0.12);
             for (let s = 0; s < SUBSTEPS; s++) {
-                if (hovering) drive(sub);
+                if (hovering) drive();
 
-                for (let i = 1; i < COLUMNS; i++) {
-                    u[i] += ((-GRAVITY * (h[i] - h[i - 1])) / colW) * sub;
-                    u[i] -= u[i] * Math.min(1, VISCOSITY * sub);
+                for (let i = 1; i < COLUMNS - 1; i++) {
+                    const spring = (rest - h[i]) * 80;
+                    const wave = (h[i - 1] + h[i + 1] - 2 * h[i]) * 45;
+                    u[i] += (spring + wave) * sub;
+                    u[i] *= 0.975;
                 }
                 u[0] = 0;
-                u[COLUMNS] = 0;
-
-                for (let i = 1; i < COLUMNS; i++) {
-                    flux[i] = (u[i] > 0 ? h[i - 1] : h[i]) * u[i];
-                }
-                flux[0] = 0;
-                flux[COLUMNS] = 0;
+                u[COLUMNS - 1] = 0;
 
                 for (let i = 0; i < COLUMNS; i++) {
-                    h[i] -= ((flux[i + 1] - flux[i]) / colW) * sub;
-                    if (h[i] < minWaterHeight) h[i] = minWaterHeight;
+                    h[i] += u[i] * sub;
+                    if (h[i] < rest * 0.8) {
+                        h[i] = rest * 0.8;
+                        u[i] = 0;
+                    } else if (h[i] > H * 0.95) {
+                        h[i] = H * 0.95;
+                        u[i] = 0;
+                    }
                 }
             }
 
@@ -576,13 +571,22 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
             asleep = false;
             quiet = 0;
         };
-        const toLocal = (e: MouseEvent) => {
+        const toLocal = (e: MouseEvent | TouchEvent) => {
             const rect = root.getBoundingClientRect();
             const sx = rect.width > 0 ? W / rect.width : 1;
             const sy = rect.height > 0 ? H / rect.height : 1;
+            let clientX = 0;
+            let clientY = 0;
+            if ('touches' in e && e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = (e as MouseEvent).clientX;
+                clientY = (e as MouseEvent).clientY;
+            }
             return {
-                x: (e.clientX - rect.left) * sx,
-                y: (e.clientY - rect.top) * sy,
+                x: (clientX - rect.left) * sx,
+                y: (clientY - rect.top) * sy,
             };
         };
         const onEnter = (e: MouseEvent) => {
@@ -617,15 +621,45 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
             splash(p.x);
             wake();
         };
+        const onTouchStart = (e: TouchEvent) => {
+            hovering = true;
+            const p = toLocal(e);
+            pointer.x = p.x;
+            pointer.y = p.y;
+            pointer.vx = 0;
+            pointer.vy = 0;
+            splash(p.x);
+            wake();
+        };
+        const onTouchMove = (e: TouchEvent) => {
+            const p = toLocal(e);
+            pointer.vx = p.x - pointer.x;
+            pointer.vy = p.y - pointer.y;
+            pointer.x = p.x;
+            pointer.y = p.y;
+            wake();
+        };
+        const onTouchEnd = () => {
+            hovering = false;
+            pointer.x = -9999;
+            pointer.y = -9999;
+            pointer.vx = 0;
+            pointer.vy = 0;
+            wake();
+        };
 
         root.addEventListener("mouseenter", onEnter);
         root.addEventListener("mousemove", onMove);
         root.addEventListener("mouseleave", onLeave);
         root.addEventListener("pointerdown", onDown);
+        root.addEventListener("touchstart", onTouchStart, { passive: true });
+        root.addEventListener("touchmove", onTouchMove, { passive: true });
+        root.addEventListener("touchend", onTouchEnd, { passive: true });
 
         const observer = new ResizeObserver(() => {
             build();
             draw();
+            wake();
         });
         observer.observe(root);
 
@@ -634,10 +668,12 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
             if (Math.abs(pixelScale() - pixScale) < 0.02) return;
             raster();
             draw();
+            wake();
         }, 300);
 
         build();
         draw();
+        wake();
         raf = requestAnimationFrame(loop);
 
         return () => {
@@ -648,6 +684,9 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
             root.removeEventListener("mousemove", onMove);
             root.removeEventListener("mouseleave", onLeave);
             root.removeEventListener("pointerdown", onDown);
+            root.removeEventListener("touchstart", onTouchStart);
+            root.removeEventListener("touchmove", onTouchMove);
+            root.removeEventListener("touchend", onTouchEnd);
             observer.disconnect();
         };
     }, [
@@ -661,6 +700,15 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
         rounded,
         label,
     ]);
+
+    const lastTriggerTime = useRef(0);
+    const handleFastClick = (e: React.SyntheticEvent<HTMLElement>) => {
+        if (!onClick) return;
+        const now = performance.now();
+        if (now - lastTriggerTime.current < 350) return;
+        lastTriggerTime.current = now;
+        onClick(e as React.MouseEvent<HTMLElement>);
+    };
 
     const commonStyle: CSSProperties = {
         ...style,
@@ -761,7 +809,8 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
                 transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
                 style={commonStyle}
                 className={className}
-                onClick={onClick}
+                onPointerDown={handleFastClick}
+                onClick={handleFastClick}
             >
                 {innerContent}
             </motion.a>
@@ -775,7 +824,8 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
             transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
             style={commonStyle}
             className={className}
-            onClick={onClick}
+            onPointerDown={handleFastClick}
+            onClick={handleFastClick}
         >
             {innerContent}
         </motion.div>

@@ -1,16 +1,26 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, useScroll, useSpring } from 'framer-motion';
-import { FadeIn } from './FadeIn';
 import { ContactButton } from './ContactButton';
 import { WaterButton } from './WaterButton';
+import { smoothScrollToElement } from '../utils/smoothScroll';
 import spidermanImg from '../images/spiderman.webp';
 
 export const HeroSection: React.FC = () => {
   const [showWebNet, setShowWebNet] = useState(false);
+  const [isSmallMobile, setIsSmallMobile] = useState(false);
 
   const isScrollingRef = useRef(false);
   const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const netHideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const checkSmall = () => {
+      setIsSmallMobile(window.innerWidth < 640);
+    };
+    checkSmall();
+    window.addEventListener('resize', checkSmall);
+    return () => window.removeEventListener('resize', checkSmall);
+  }, []);
 
   // Framer Motion continuous scroll progress across entire document
   const { scrollYProgress } = useScroll();
@@ -22,7 +32,7 @@ export const HeroSection: React.FC = () => {
 
   // Smooth continuous metric transforms across page scroll (Hero -> Footer)
   const spiderLeft = useTransform(smoothProgress, [0, 0.18, 0.85, 1], ['50%', '82%', '82%', '82%']);
-  const ropeHeightVh = useTransform(smoothProgress, [0, 0.18, 1], [44, 58, 62]);
+  const ropeHeightVh = useTransform(smoothProgress, [0, 0.18, 1], [isSmallMobile ? 33 : 44, 58, 62]);
   const ropeHeightPx = useTransform(ropeHeightVh, (v) => `${v}vh`);
   const spiderScale = useTransform(smoothProgress, [0, 0.18, 1], [1.0, 0.58, 0.52]);
   const footerLift = useTransform(smoothProgress, [0.85, 1], [0, 140]);
@@ -65,40 +75,7 @@ export const HeroSection: React.FC = () => {
     if (href.startsWith('#')) {
       e.preventDefault();
       const targetId = href.substring(1);
-      const targetElement = document.getElementById(targetId);
-      if (targetElement) {
-        // Temporarily disable CSS scroll-behavior to prevent browser interpolation conflict & vibration glitch
-        document.documentElement.style.scrollBehavior = 'auto';
-
-        const targetY = targetElement.getBoundingClientRect().top + (window.scrollY || window.pageYOffset);
-        const startY = window.scrollY || window.pageYOffset;
-        const distance = targetY - startY;
-        const duration = 950; // 950ms silky ease-in-out transition
-        let startTime: number | null = null;
-
-        const easeInOutQuint = (t: number) => {
-          return t < 0.5 ? 16 * t * t * t * t * t : 1 - Math.pow(-2 * t + 2, 5) / 2;
-        };
-
-        const step = (currentTime: number) => {
-          if (!startTime) startTime = currentTime;
-          const elapsed = currentTime - startTime;
-          const progress = Math.min(elapsed / duration, 1);
-          const easeProgress = easeInOutQuint(progress);
-
-          window.scrollTo(0, startY + distance * easeProgress);
-
-          if (progress < 1) {
-            requestAnimationFrame(step);
-          } else {
-            // Restore default scrollBehavior after smooth transition completes
-            document.documentElement.style.scrollBehavior = '';
-          }
-        };
-
-        requestAnimationFrame(step);
-        window.history.pushState(null, '', href);
-      }
+      smoothScrollToElement(targetId, 1100);
     }
   };
 
@@ -149,7 +126,6 @@ export const HeroSection: React.FC = () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
-      document.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, [rawSwingX, rawSwingY, smoothProgress]);
 
@@ -185,8 +161,8 @@ export const HeroSection: React.FC = () => {
   return (
     <section className="relative h-screen w-full flex flex-col justify-between overflow-x-clip bg-transparent">
       {/* Navbar */}
-      <FadeIn delay={0} y={-20} className="w-full z-30">
-        <nav className="w-full flex justify-between items-center px-4 sm:px-6 md:px-10 pt-6 md:pt-8 flex-wrap gap-2">
+      <div className="w-full z-30">
+        <nav className="w-full flex justify-between items-center px-2 sm:px-6 md:px-10 pt-4 sm:pt-6 md:pt-8 gap-1 sm:gap-2">
           {navLinks.map((link) => (
             <WaterButton
               key={link.label}
@@ -195,29 +171,32 @@ export const HeroSection: React.FC = () => {
               onClick={(e) => handleNavClick(e, link.href)}
               waterColor={link.waterColor}
               textColor="#FFFFFF"
-              paddingX={22}
-              paddingY={10}
+              paddingX={isSmallMobile ? 10 : 22}
+              paddingY={isSmallMobile ? 7 : 10}
               rounded={50}
               waterAmount={65}
               glass={{ tint: 'rgba(0, 0, 0, 0.25)', blur: 20, frost: 20 }}
               borderOptions={{ color: link.borderColor, stroke: 1.2 }}
-              font={{ fontFamily: 'Kanit, sans-serif', fontSize: '15px', fontWeight: 600, letterSpacing: '0.05em' }}
+              font={{
+                fontFamily: 'Kanit, sans-serif',
+                fontSize: isSmallMobile ? '12px' : '15px',
+                fontWeight: 600,
+                letterSpacing: '0.05em',
+              }}
             />
           ))}
         </nav>
-      </FadeIn>
+      </div>
 
       {/* Hero Heading Container */}
-      <div className="w-full flex justify-center items-center relative z-20 my-2 sm:my-0">
-        <FadeIn delay={0.15} y={30} className="w-full text-center">
-          <h1 className="hero-heading font-black uppercase tracking-tight leading-none whitespace-nowrap w-full text-[11vw] sm:text-[15vw] md:text-[16vw] lg:text-[17.5vw] mt-2 sm:mt-4 md:-mt-5 select-none py-1">
-            Hi, i&apos;m Joy
-          </h1>
-        </FadeIn>
+      <div className="w-full flex justify-center items-center relative z-20 pt-1 sm:pt-6 md:pt-2 mt-[45vh] sm:mt-0 my-1 sm:my-0">
+        <h1 className="hero-heading font-black uppercase tracking-tight leading-none whitespace-nowrap w-full text-[11.5vw] sm:text-[14vw] md:text-[16vw] lg:text-[17.5vw] select-none py-1 drop-shadow-[0_10px_20px_rgba(0,0,0,0.95)] text-center">
+          Hi, i&apos;m Joy
+        </h1>
       </div>
 
       {/* SINGLE UNIFIED ASSEMBLY: Web Rope + Spider-Man scaled together inside Viewport (Framer Motion 60FPS GPU) */}
-      <div className="fixed inset-0 pointer-events-none z-30 overflow-visible">
+      <div className="fixed inset-0 pointer-events-none z-[45] overflow-visible touch-pan-y">
         <motion.div
           className="absolute flex flex-col items-center pointer-events-none origin-top"
           style={{
@@ -314,7 +293,7 @@ export const HeroSection: React.FC = () => {
                   >
                     <svg
                       viewBox="0 0 200 200"
-                      className="w-full h-full text-white drop-shadow-[0_0_25px_rgba(255,255,255,0.95)]"
+                      className="w-full h-full text-[#FFFFFF] drop-shadow-[0_0_25px_rgba(255,255,255,0.95)]"
                       fill="none"
                     >
                       {/* Dark backing web lines for contrast on any background */}
@@ -337,7 +316,7 @@ export const HeroSection: React.FC = () => {
                         <line x1="171" y1="29" x2="29" y2="171" />
                         <path d="M100,25 Q122,35 153,47 Q165,78 175,100 Q165,122 153,153 Q122,165 100,175 Q78,165 47,153 Q35,122 25,100 Q35,78 47,47 Q78,35 100,25 Z" />
                         <path d="M100,45 Q115,52 138,62 Q145,85 155,100 Q145,115 138,138 Q115,145 100,155 Q85,145 62,138 Q55,115 45,100 Q55,85 62,62 Q85,52 100,45 Z" />
-                        <path d="M100,65 Q108,70 124,76 Q128,90 135,100 Q128,110 124,124 Q110,128 100,135 Q90,128 76,124 Q70,110 65,100 Q70,90 76,76 Q90,70 100,65 Z" />
+                        <path d="M100,65 Q108,70 124,76 Q128,90 135,100 Q128,110 124,124 Q110,128 100,135 Q90,128 76,76 Q90,70 100,65 Z" />
                         <path d="M100,82 Q105,85 112,88 Q115,95 118,100 Q115,105 112,112 Q105,115 100,118 Q95,115 88,112 Q85,105 82,100 Q85,95 88,88 Q95,85 100,82 Z" />
                       </g>
                     </svg>
@@ -362,18 +341,14 @@ export const HeroSection: React.FC = () => {
 
       {/* Bottom Bar */}
       <div className="w-full flex justify-between items-end pb-7 sm:pb-8 md:pb-10 px-6 md:px-10 z-30">
-        <FadeIn delay={0.35} y={20}>
-          <p
-            className="text-[#D7E2EA] font-light uppercase tracking-wide leading-snug max-w-[160px] sm:max-w-[220px] md:max-w-[260px]"
-            style={{ fontSize: 'clamp(0.75rem, 1.4vw, 1.5rem)' }}
-          >
-            Let&apos;s Build
-          </p>
-        </FadeIn>
+        <p
+          className="text-[#D7E2EA] font-light uppercase tracking-wide leading-snug max-w-[160px] sm:max-w-[220px] md:max-w-[260px]"
+          style={{ fontSize: 'clamp(0.75rem, 1.4vw, 1.5rem)' }}
+        >
+          Let&apos;s Build
+        </p>
 
-        <FadeIn delay={0.5} y={20}>
-          <ContactButton />
-        </FadeIn>
+        <ContactButton />
       </div>
     </section>
   );

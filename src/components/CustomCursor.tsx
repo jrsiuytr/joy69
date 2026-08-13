@@ -25,13 +25,11 @@ export const CustomCursor: React.FC = () => {
 
   useEffect(() => {
     const isTouchDevice = () => window.matchMedia('(pointer: coarse)').matches;
+    if (isTouchDevice()) {
+      return;
+    }
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (isTouchDevice()) {
-        document.body.classList.remove('custom-cursor-active');
-        setIsVisible(false);
-        return;
-      }
 
       document.body.classList.add('custom-cursor-active');
       setIsVisible(true);

@@ -319,3 +319,5 @@ export const MarqueeSection: React.FC = () => {
   );
 };
 
+export default MarqueeSection;
+

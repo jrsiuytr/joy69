@@ -1,20 +1,21 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import xIcon from './images/x.svg';
 import telegramIcon from './images/telegram-svgrepo-com.svg';
 import discordIcon from './images/discord-communication-interaction-message-network-svgrepo-com.svg';
 import { CustomCursor } from './components/CustomCursor';
 import { ScrollToTopButton } from './components/ScrollToTopButton';
 import { HeroSection } from './components/HeroSection';
-import { Spotlight3DSection } from './components/Spotlight3DSection';
-import { MarqueeSection } from './components/MarqueeSection';
-import { AboutSection } from './components/AboutSection';
-import { ServicesSection } from './components/ServicesSection';
-import { ProjectsSection } from './components/ProjectsSection';
 import { SpiderManVenomBackground } from './components/SpiderManVenomBackground';
 import { SpiderWebLoader } from './components/SpiderWebLoader';
 import { FadeIn } from './components/FadeIn';
 import { ContactButton } from './components/ContactButton';
 import { Mail } from 'lucide-react';
+
+const Spotlight3DSection = lazy(() => import('./components/Spotlight3DSection'));
+const MarqueeSection = lazy(() => import('./components/MarqueeSection'));
+const AboutSection = lazy(() => import('./components/AboutSection'));
+const ServicesSection = lazy(() => import('./components/ServicesSection'));
+const ProjectsSection = lazy(() => import('./components/ProjectsSection'));
 
 export function App() {
   useEffect(() => {
@@ -41,20 +42,23 @@ export function App() {
       {/* 1. Hero Section */}
       <HeroSection />
 
-      {/* Spotlight 3D Gallery Section */}
-      <Spotlight3DSection />
+      {/* Below-the-fold Lazy Chunked Components */}
+      <Suspense fallback={null}>
+        {/* Spotlight 3D Gallery Section */}
+        <Spotlight3DSection />
 
-      {/* 2. Marquee Section */}
-      <MarqueeSection />
+        {/* 2. Marquee Section */}
+        <MarqueeSection />
 
-      {/* 3. About Section */}
-      <AboutSection />
+        {/* 3. About Section */}
+        <AboutSection />
 
-      {/* 4. Services Section */}
-      <ServicesSection />
+        {/* 4. Services Section */}
+        <ServicesSection />
 
-      {/* 5. Projects Section */}
-      <ProjectsSection />
+        {/* 5. Projects Section */}
+        <ProjectsSection />
+      </Suspense>
 
       {/* Footer / Contact Section */}
       <footer id="contact" className="bg-[#06070D] text-[#D7E2EA] pt-24 pb-12 px-6 md:px-10 border-t border-red-500/30 relative z-30 shadow-[0_-20px_50px_rgba(0,0,0,0.9)]">

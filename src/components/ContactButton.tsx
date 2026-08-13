@@ -1,5 +1,6 @@
 import React from 'react';
 import { WaterButton } from './WaterButton';
+import { smoothScrollToElement } from '../utils/smoothScroll';
 
 interface ContactButtonProps {
   onClick?: () => void;
@@ -14,7 +15,7 @@ export const ContactButton: React.FC<ContactButtonProps> = ({ onClick, className
     } else {
       const contactSection = document.getElementById('contact');
       if (contactSection) {
-        contactSection.scrollIntoView({ behavior: 'smooth' });
+        smoothScrollToElement('contact', 1100);
       } else {
         window.location.href = 'mailto:ig69onfire@gmail.com';
       }
