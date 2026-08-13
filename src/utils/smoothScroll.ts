@@ -1,36 +1,45 @@
-export const smoothScrollTo = (targetY: number, duration = 1100) => {
+let activeScrollRaf: number | null = null;
+
+export const smoothScrollTo = (targetY: number, duration = 900) => {
+  if (activeScrollRaf !== null) {
+    cancelAnimationFrame(activeScrollRaf);
+    activeScrollRaf = null;
+  }
+
   const startY = window.scrollY || window.pageYOffset;
   const distance = targetY - startY;
-  if (Math.abs(distance) < 2) return;
+  if (Math.abs(distance) < 4) return;
 
   let startTime: number | null = null;
 
-  // Premium, silky smooth Ease-Out Quintic deceleration curve (Gentle, elegant animated scroll)
-  const easeOutQuint = (t: number): number => {
-    const inv = 1 - t;
-    return 1 - inv * inv * inv * inv * inv;
+  // Premium, silky smooth Ease-In-Out Cubic curve (Zero sudden acceleration, elegant deceleration)
+  const easeInOutCubic = (t: number): number => {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   };
 
   const animationStep = (currentTime: number) => {
     if (startTime === null) startTime = currentTime;
     const timeElapsed = currentTime - startTime;
     const progress = Math.min(timeElapsed / duration, 1);
-    const easedProgress = easeOutQuint(progress);
+    const easedProgress = easeInOutCubic(progress);
 
     window.scrollTo(0, startY + distance * easedProgress);
 
     if (timeElapsed < duration) {
-      requestAnimationFrame(animationStep);
+      activeScrollRaf = requestAnimationFrame(animationStep);
+    } else {
+      activeScrollRaf = null;
     }
   };
 
-  // Execute immediately on current frame
-  requestAnimationFrame(animationStep);
+  activeScrollRaf = requestAnimationFrame(animationStep);
 };
 
-export const smoothScrollToElement = (elementId: string, duration = 1100) => {
+export const smoothScrollToElement = (elementId: string, duration = 900) => {
   const element = document.getElementById(elementId);
   if (!element) return;
-  const targetY = element.getBoundingClientRect().top + (window.scrollY || window.pageYOffset);
+  const navOffset = 20;
+  const targetY = Math.max(0, element.getBoundingClientRect().top + (window.scrollY || window.pageYOffset) - navOffset);
   smoothScrollTo(targetY, duration);
 };
+

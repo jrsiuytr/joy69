@@ -6,34 +6,23 @@ interface AnimatedTextProps {
   className?: string;
 }
 
-interface CharProps {
-  char: string;
+interface WordProps {
+  word: string;
   progress: MotionValue<number>;
   range: [number, number];
 }
 
-const Character: React.FC<CharProps> = ({ char, progress, range }) => {
-  const opacity = useTransform(progress, range, [0.35, 1]);
-  const scale = useTransform(progress, range, [0.96, 1]);
-  const textShadow = useTransform(
-    progress,
-    range,
-    [
-      '0px 0px 0px rgba(255,255,255,0)',
-      '0px 0px 16px rgba(255,255,255,0.95)'
-    ]
-  );
+const Word: React.FC<WordProps> = ({ word, progress, range }) => {
+  const opacity = useTransform(progress, range, [0.25, 1]);
+  const y = useTransform(progress, range, [4, 0]);
 
   return (
-    <span className="relative inline-block">
-      <span className="opacity-30 text-gray-400">{char}</span>
-      <motion.span
-        style={{ opacity, scale, textShadow }}
-        className="absolute left-0 top-0 text-white font-inherit"
-      >
-        {char}
-      </motion.span>
-    </span>
+    <motion.span
+      style={{ opacity, y }}
+      className="inline-block mr-[0.35em] last:mr-0 transition-colors duration-200"
+    >
+      {word}
+    </motion.span>
   );
 };
 
@@ -41,12 +30,12 @@ export const AnimatedText: React.FC<AnimatedTextProps> = ({ text, className = ''
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ['start 0.85', 'end 0.25'],
+    offset: ['start 0.85', 'end 0.35'],
   });
 
   const paragraphs = text.split(/\n\s*\n/).filter((p) => p.trim().length > 0);
-  const totalChars = text.length;
-  let charCounter = 0;
+  const allWordsCount = paragraphs.reduce((acc, p) => acc + p.trim().split(/\s+/).length, 0);
+  let globalWordCounter = 0;
 
   return (
     <div ref={containerRef} className={className}>
@@ -55,27 +44,17 @@ export const AnimatedText: React.FC<AnimatedTextProps> = ({ text, className = ''
         return (
           <p key={`p-${pIdx}`} className="mb-4 sm:mb-6 last:mb-0">
             {words.map((word, wordIdx) => {
-              const wordChars = word.split('');
-              const wordStartIndex = charCounter;
-              charCounter += wordChars.length + 1;
+              const start = globalWordCounter / (allWordsCount || 1);
+              const end = Math.min(1, start + 1 / (allWordsCount || 1));
+              globalWordCounter++;
 
               return (
-                <span key={`w-${pIdx}-${wordIdx}`} className="inline-block whitespace-nowrap mr-[0.32em] last:mr-0">
-                  {wordChars.map((char, charIdx) => {
-                    const globalIndex = wordStartIndex + charIdx;
-                    const start = globalIndex / totalChars;
-                    const end = Math.min(1, start + 1 / totalChars);
-
-                    return (
-                      <Character
-                        key={`c-${pIdx}-${wordIdx}-${charIdx}`}
-                        char={char}
-                        progress={scrollYProgress}
-                        range={[start, end]}
-                      />
-                    );
-                  })}
-                </span>
+                <Word
+                  key={`w-${pIdx}-${wordIdx}`}
+                  word={word}
+                  progress={scrollYProgress}
+                  range={[start, end]}
+                />
               );
             })}
           </p>
@@ -85,4 +64,4 @@ export const AnimatedText: React.FC<AnimatedTextProps> = ({ text, className = ''
   );
 };
 
-
+export default AnimatedText;

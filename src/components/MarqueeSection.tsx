@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ExternalLink, RotateCcw, Sparkles } from 'lucide-react';
-import { WaterButton } from './WaterButton';
+
 
 import gtaviImg from '../images/games/gta6.webp';
 import fc27Img from '../images/games/fc27.webp';
@@ -266,24 +266,15 @@ const MarqueeCard: React.FC<MarqueeCardProps> = ({ item }) => {
 
           {/* Action Link Button */}
           <div className="z-10 w-full flex justify-center">
-            <WaterButton
+            <a
               href={item.link}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              waterColor="#8B5CF6"
-              textColor="#FFFFFF"
-              paddingX={20}
-              paddingY={10}
-              rounded={50}
-              waterAmount={60}
-              glass={{ tint: 'rgba(124, 58, 237, 0.3)', blur: 20, frost: 20 }}
-              borderOptions={{ color: 'rgba(167, 139, 250, 0.6)', stroke: 1.5 }}
-              font={{ fontFamily: 'Kanit, sans-serif', fontSize: '13px', fontWeight: 600, letterSpacing: '0.05em' }}
-              className="w-full justify-center"
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-purple-600/30 hover:bg-purple-600/50 backdrop-blur-md border border-purple-400/60 text-white text-xs sm:text-sm font-semibold tracking-wide transition-all duration-300 shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:shadow-[0_0_25px_rgba(139,92,246,0.5)] active:scale-95"
             >
               Visit Website / Game <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            </WaterButton>
+            </a>
           </div>
         </div>
       </div>

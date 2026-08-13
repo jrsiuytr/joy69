@@ -656,7 +656,34 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
         root.addEventListener("touchmove", onTouchMove, { passive: true });
         root.addEventListener("touchend", onTouchEnd, { passive: true });
 
+        let inView = true;
+
+        const intersectionObserver = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    inView = entry.isIntersecting;
+                    if (inView) {
+                        asleep = false;
+                        quiet = 0;
+                        if (!raf && alive) {
+                            last = performance.now();
+                            raf = requestAnimationFrame(loop);
+                        }
+                    } else {
+                        asleep = true;
+                        if (raf) {
+                            cancelAnimationFrame(raf);
+                            raf = 0;
+                        }
+                    }
+                });
+            },
+            { threshold: 0.01 }
+        );
+        intersectionObserver.observe(root);
+
         const observer = new ResizeObserver(() => {
+            if (!inView) return;
             build();
             draw();
             wake();
@@ -664,12 +691,12 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
         observer.observe(root);
 
         const probe = window.setInterval(() => {
-            if (!alive) return;
+            if (!alive || !inView) return;
             if (Math.abs(pixelScale() - pixScale) < 0.02) return;
             raster();
             draw();
             wake();
-        }, 300);
+        }, 500);
 
         build();
         draw();
@@ -678,8 +705,9 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
 
         return () => {
             alive = false;
-            cancelAnimationFrame(raf);
+            if (raf) cancelAnimationFrame(raf);
             clearInterval(probe);
+            intersectionObserver.disconnect();
             root.removeEventListener("mouseenter", onEnter);
             root.removeEventListener("mousemove", onMove);
             root.removeEventListener("mouseleave", onLeave);
