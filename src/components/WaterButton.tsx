@@ -729,13 +729,9 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
         label,
     ]);
 
-    const lastTriggerTime = useRef(0);
-    const handleFastClick = (e: React.SyntheticEvent<HTMLElement>) => {
+    const handleClick = (e: React.MouseEvent<HTMLElement>) => {
         if (!onClick) return;
-        const now = performance.now();
-        if (now - lastTriggerTime.current < 350) return;
-        lastTriggerTime.current = now;
-        onClick(e as React.MouseEvent<HTMLElement>);
+        onClick(e);
     };
 
     const commonStyle: CSSProperties = {
@@ -837,8 +833,7 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
                 transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
                 style={commonStyle}
                 className={className}
-                onPointerDown={handleFastClick}
-                onClick={handleFastClick}
+                onClick={handleClick}
             >
                 {innerContent}
             </motion.a>
@@ -852,8 +847,7 @@ export const WaterButton: React.FC<WaterButtonProps> = (props) => {
             transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
             style={commonStyle}
             className={className}
-            onPointerDown={handleFastClick}
-            onClick={handleFastClick}
+            onClick={handleClick}
         >
             {innerContent}
         </motion.div>

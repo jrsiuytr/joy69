@@ -75,7 +75,7 @@ export const HeroSection: React.FC = () => {
     if (href.startsWith('#')) {
       e.preventDefault();
       const targetId = href.substring(1);
-      smoothScrollToElement(targetId, 1100);
+      smoothScrollToElement(targetId, 900);
     }
   };
 
@@ -216,7 +216,7 @@ export const HeroSection: React.FC = () => {
           >
             {/* 1. Realistic Multi-Strand Movie Web Rope: Bends dynamically via MotionValues (0 React re-renders!) */}
             <motion.div
-              className="w-10 flex justify-center relative z-0 -mb-10 sm:-mb-14 md:-mb-20"
+              className="w-10 flex justify-center relative z-0 -mb-8 sm:-mb-14 md:-mb-20"
               style={{ height: ropeHeightPx }}
             >
               <svg
@@ -289,7 +289,7 @@ export const HeroSection: React.FC = () => {
                     animate={{ scale: 1.35, opacity: 0.95, rotate: 0 }}
                     exit={{ scale: 1.6, opacity: 0 }}
                     transition={{ duration: 0.3, ease: 'easeOut' }}
-                    className="absolute z-0 pointer-events-none w-[320px] sm:w-[420px] md:w-[500px] h-[320px] sm:h-[420px] md:h-[500px]"
+                    className="absolute z-0 pointer-events-none w-[230px] sm:w-[420px] md:w-[500px] h-[230px] sm:h-[420px] md:h-[500px]"
                   >
                     <svg
                       viewBox="0 0 200 200"
@@ -304,7 +304,7 @@ export const HeroSection: React.FC = () => {
                         <line x1="171" y1="29" x2="29" y2="171" />
                         <path d="M100,25 Q122,35 153,47 Q165,78 175,100 Q165,122 153,153 Q122,165 100,175 Q78,165 47,153 Q35,122 25,100 Q35,78 47,47 Q78,35 100,25 Z" />
                         <path d="M100,45 Q115,52 138,62 Q145,85 155,100 Q145,115 138,138 Q115,145 100,155 Q85,145 62,138 Q55,115 45,100 Q55,85 62,62 Q85,52 100,45 Z" />
-                        <path d="M100,65 Q108,70 124,76 Q128,90 135,100 Q128,110 124,124 Q110,128 100,135 Q90,128 76,124 Q70,110 65,100 Q70,90 76,76 Q90,70 100,65 Z" />
+                        <path d="M100,65 Q108,70 124,76 Q128,90 135,100 Q128,110 124,124 Q110,128 100,135 Q90,128 76,76 Q90,70 100,65 Z" />
                         <path d="M100,82 Q105,85 112,88 Q115,95 118,100 Q115,105 112,112 Q105,115 100,118 Q95,115 88,112 Q85,105 82,100 Q85,95 88,88 Q95,85 100,82 Z" />
                       </g>
 
@@ -325,7 +325,7 @@ export const HeroSection: React.FC = () => {
               </AnimatePresence>
 
               {/* Spider-Man Image */}
-              <div className="w-[200px] sm:w-[260px] md:w-[320px] lg:w-[380px] relative z-10">
+              <div className="w-[145px] sm:w-[260px] md:w-[320px] lg:w-[380px] relative z-10">
                 <img
                   src={spidermanImg}
                   alt="3D Spider-Man Hero"
@@ -353,3 +353,5 @@ export const HeroSection: React.FC = () => {
     </section>
   );
 };
+
+export default HeroSection;
