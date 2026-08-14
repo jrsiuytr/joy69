@@ -30,13 +30,53 @@ export const HeroSection: React.FC = () => {
     restDelta: 0.0001,
   });
 
-  // Smooth continuous metric transforms across page scroll (Hero -> Footer)
-  const spiderLeft = useTransform(smoothProgress, [0, 0.18, 0.85, 1], ['50%', '82%', '82%', '82%']);
-  const ropeHeightVh = useTransform(smoothProgress, [0, 0.18, 1], [isSmallMobile ? 33 : 44, 58, 62]);
+  // =========================================================================
+  // 🕸️ SPIDER-MAN SCROLL & POSITION CONFIG (Section-wise & Responsive)
+  // =========================================================================
+  // Scroll Landmarks across the website:
+  // 0.00 = Hero Section (Home)
+  // 0.18 = Spotlight 3D Gallery
+  // 0.50 = About / Services
+  // 0.85 = Projects
+  // 1.00 = Footer (Never Give Up / Contact)
+
+  // 1. HORIZONTAL POSITION (Left %):
+  // Hero (50% center) -> Scroll sections (92% mobile / 90% desktop)
+  const spiderTargetLeft = isSmallMobile ? '92%' : '90%';
+  const spiderLeft = useTransform(
+    smoothProgress,
+    [0, 0.18, 0.85, 1],
+    ['50%', spiderTargetLeft, spiderTargetLeft, spiderTargetLeft]
+  );
+
+  // 2. VERTICAL ROPE LENGTH (vh):
+  // Controls how far down Spider-Man hangs from the top
+  const ropeHeightVh = useTransform(
+    smoothProgress,
+    [0, 0.18, 0.85, 1],
+    [
+      isSmallMobile ? 33 : 44, // 0.00: Hero (Center screen)
+      isSmallMobile ? 36 : 38, // 0.18: 3D Gallery (Top-Right corner)
+      isSmallMobile ? 36 : 38, // 0.85: Projects
+      isSmallMobile ? 38 : 42, // 1.00: Footer (Stay fully visible inside screen)
+    ]
+  );
   const ropeHeightPx = useTransform(ropeHeightVh, (v) => `${v}vh`);
-  const spiderScale = useTransform(smoothProgress, [0, 0.18, 1], [1.0, 0.58, 0.52]);
-  const footerLift = useTransform(smoothProgress, [0.85, 1], [0, 140]);
-  const footerY = useTransform(footerLift, (v) => -v);
+
+  // 3. CHARACTER SIZE / SCALE:
+  const spiderScale = useTransform(
+    smoothProgress,
+    [0, 0.18, 0.85, 1],
+    [
+      1.0,                         // 0.00: Hero (Full size 100%)
+      isSmallMobile ? 0.35 : 0.40, // 0.18: 3D Gallery (Compact)
+      isSmallMobile ? 0.35 : 0.40, // 0.85: Projects (Compact)
+      isSmallMobile ? 0.38 : 0.42, // 1.00: Footer (Clear & fully visible)
+    ]
+  );
+
+  // Note: footerY is kept at 0 so Spider-Man never gets pulled above the top screen border
+  const footerY = 0;
 
   // 60fps GPU pendulum spring physics for Spider-Man & Web Rope swing (Generous freedom of movement!)
   const rawSwingX = useMotionValue(0);
@@ -81,7 +121,7 @@ export const HeroSection: React.FC = () => {
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      const currentLeftRatio = smoothProgress.get() > 0.18 ? 0.82 : 0.5;
+      const currentLeftRatio = smoothProgress.get() > 0.18 ? (isSmallMobile ? 0.92 : 0.90) : 0.5;
       const centerX = window.innerWidth * currentLeftRatio;
       const centerY = window.innerHeight * 0.45;
 
@@ -101,7 +141,7 @@ export const HeroSection: React.FC = () => {
     const handleTouchMove = (e: TouchEvent) => {
       if (e.touches.length > 0) {
         const touch = e.touches[0];
-        const currentLeftRatio = smoothProgress.get() > 0.18 ? 0.82 : 0.5;
+        const currentLeftRatio = smoothProgress.get() > 0.18 ? (isSmallMobile ? 0.92 : 0.90) : 0.5;
         const centerX = window.innerWidth * currentLeftRatio;
         const centerY = window.innerHeight * 0.45;
 
@@ -188,8 +228,12 @@ export const HeroSection: React.FC = () => {
         </nav>
       </div>
 
-      {/* Hero Heading Container */}
-      <div className="w-full flex justify-center items-center relative z-20 pt-1 sm:pt-6 md:pt-2 mt-[45vh] sm:mt-0 my-1 sm:my-0">
+      {/* 
+        📍 "HI, I'M JOY" UP/DOWN CONTROLS:
+        - MOBILE  : `mt-[0px]` ya `translate-y-[0px]` (Prefix ke bina wala mobile ke liye hai)
+        - DESKTOP : `sm:mt-[0px]` ya `md:mt-[0px]` (`sm:` / `md:` prefix desktop ke liye hai)
+      */}
+      <div className="w-full flex justify-center items-center relative z-20 pt-1 sm:pt-6 md:pt-2 mt-0 sm:mt-0 my-0">
         <h1 className="hero-heading font-black uppercase tracking-tight leading-none whitespace-nowrap w-full text-[11.5vw] sm:text-[14vw] md:text-[16vw] lg:text-[17.5vw] select-none py-1 drop-shadow-[0_10px_20px_rgba(0,0,0,0.95)] text-center">
           Hi, i&apos;m Joy
         </h1>
