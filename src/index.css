@@ -107,9 +107,12 @@ html, body, #root {
   will-change: transform;
 }
 
-.animate-marquee-left:hover,
-.animate-marquee-right:hover {
-  animation-play-state: paused;
+/* Pause on hover ONLY for mouse/desktop devices (prevents sticky pause bug on mobile touch) */
+@media (hover: hover) and (pointer: fine) {
+  .animate-marquee-left:hover,
+  .animate-marquee-right:hover {
+    animation-play-state: paused;
+  }
 }
 
 /* Hide default browser cursor ONLY when desktop fine pointer is active AND custom cursor is enabled */

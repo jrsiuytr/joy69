@@ -176,21 +176,23 @@ const marqueeItemsData: MarqueeItem[] = [
 
 interface MarqueeCardProps {
   item: MarqueeItem;
+  onFlipChange?: (flipped: boolean) => void;
 }
 
-const MarqueeCard: React.FC<MarqueeCardProps> = ({ item }) => {
+const MarqueeCard: React.FC<MarqueeCardProps> = ({ item, onFlipChange }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
-  // Auto flip-back after 5 seconds
+  // Auto flip-back after 2.8 seconds and notify parent to pause/resume slider
   useEffect(() => {
+    onFlipChange?.(isFlipped);
     if (!isFlipped) return;
 
     const timer = setTimeout(() => {
       setIsFlipped(false);
-    }, 2000);
+    }, 2800);
 
     return () => clearTimeout(timer);
-  }, [isFlipped]);
+  }, [isFlipped, onFlipChange]);
 
   const handleCardClick = () => {
     setIsFlipped((prev) => !prev);
@@ -283,26 +285,58 @@ const MarqueeCard: React.FC<MarqueeCardProps> = ({ item }) => {
 };
 
 export const MarqueeSection: React.FC = () => {
+  const [isRow1TouchPaused, setIsRow1TouchPaused] = useState(false);
+  const [isRow2TouchPaused, setIsRow2TouchPaused] = useState(false);
+  const [flippedCountRow1, setFlippedCountRow1] = useState(0);
+  const [flippedCountRow2, setFlippedCountRow2] = useState(0);
+
   const row1Original = marqueeItemsData.slice(0, 10);
   const row2Original = marqueeItemsData.slice(10, 20);
 
   const row1 = [...row1Original, ...row1Original];
   const row2 = [...row2Original, ...row2Original];
 
+  const isRow1Paused = isRow1TouchPaused || flippedCountRow1 > 0;
+  const isRow2Paused = isRow2TouchPaused || flippedCountRow2 > 0;
+
   return (
     <section className="bg-transparent pt-24 sm:pt-32 md:pt-40 pb-10 overflow-hidden w-full relative z-20 select-none">
       <div className="flex flex-col gap-4 sm:gap-6">
-        {/* Row 1 - Smooth continuous 60FPS marquee moving RIGHT (pauses on hover) */}
-        <div className="flex gap-4 sm:gap-6 w-max animate-marquee-right gpu-layer">
+        {/* Row 1 - Smooth continuous 60FPS marquee moving RIGHT (pauses on desktop hover, touch hold, or when a card is clicked/flipped) */}
+        <div
+          onTouchStart={() => setIsRow1TouchPaused(true)}
+          onTouchEnd={() => setIsRow1TouchPaused(false)}
+          onTouchCancel={() => setIsRow1TouchPaused(false)}
+          style={{ animationPlayState: isRow1Paused ? 'paused' : undefined }}
+          className="flex gap-4 sm:gap-6 w-max animate-marquee-right gpu-layer"
+        >
           {row1.map((item, index) => (
-            <MarqueeCard key={`row1-${item.id}-${index}`} item={item} />
+            <MarqueeCard
+              key={`row1-${item.id}-${index}`}
+              item={item}
+              onFlipChange={(flipped) => {
+                setFlippedCountRow1((prev) => Math.max(0, prev + (flipped ? 1 : -1)));
+              }}
+            />
           ))}
         </div>
 
-        {/* Row 2 - Smooth continuous 60FPS marquee moving LEFT (pauses on hover) */}
-        <div className="flex gap-4 sm:gap-6 w-max animate-marquee-left gpu-layer">
+        {/* Row 2 - Smooth continuous 60FPS marquee moving LEFT (pauses on desktop hover, touch hold, or when a card is clicked/flipped) */}
+        <div
+          onTouchStart={() => setIsRow2TouchPaused(true)}
+          onTouchEnd={() => setIsRow2TouchPaused(false)}
+          onTouchCancel={() => setIsRow2TouchPaused(false)}
+          style={{ animationPlayState: isRow2Paused ? 'paused' : undefined }}
+          className="flex gap-4 sm:gap-6 w-max animate-marquee-left gpu-layer"
+        >
           {row2.map((item, index) => (
-            <MarqueeCard key={`row2-${item.id}-${index}`} item={item} />
+            <MarqueeCard
+              key={`row2-${item.id}-${index}`}
+              item={item}
+              onFlipChange={(flipped) => {
+                setFlippedCountRow2((prev) => Math.max(0, prev + (flipped ? 1 : -1)));
+              }}
+            />
           ))}
         </div>
       </div>
