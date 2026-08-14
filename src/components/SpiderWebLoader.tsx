@@ -23,34 +23,37 @@ export const SpiderWebLoader: React.FC<SpiderWebLoaderProps> = ({ onComplete }) 
     // Lock body scroll during initial load
     document.body.style.overflow = 'hidden';
 
-    // Ultra-fast responsive loading progress 0 -> 100%
-    const duration = 600;
-    const intervalTime = 15;
-    const steps = duration / intervalTime;
-    let currentStep = 0;
+    // Smooth loading progress 0 -> 100%
+    const duration = 700;
+    const startTime = performance.now();
 
-    const timer = setInterval(() => {
-      currentStep++;
-      const nextProgress = Math.min(100, Math.round((currentStep / steps) * 100));
-      setProgress(nextProgress);
+    const updateProgress = (now: number) => {
+      const elapsed = now - startTime;
+      const progressFraction = Math.min(1, elapsed / duration);
+      // Smooth ease-out quad curve for natural feel
+      const easedProgress = Math.round((1 - Math.pow(1 - progressFraction, 2)) * 100);
+      setProgress(easedProgress);
 
-      if (currentStep >= steps) {
-        clearInterval(timer);
+      if (progressFraction < 1) {
+        requestAnimationFrame(updateProgress);
+      } else {
+        setProgress(100);
         setTimeout(() => {
           setPhase('zooming');
+          // Wait for full zoom & fade-out animation to complete seamlessly
           setTimeout(() => {
             setPhase('complete');
             document.body.style.overflow = '';
-            // Ensure scroll position lands on the main home section at the top after loading finishes
-            window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
             if (onComplete) onComplete();
-          }, 450);
-        }, 80);
+          }, 650);
+        }, 100);
       }
-    }, intervalTime);
+    };
+
+    const animFrame = requestAnimationFrame(updateProgress);
 
     return () => {
-      clearInterval(timer);
+      cancelAnimationFrame(animFrame);
       document.body.style.overflow = '';
     };
   }, [onComplete]);
@@ -224,10 +227,10 @@ export const SpiderWebLoader: React.FC<SpiderWebLoaderProps> = ({ onComplete }) 
         key="spider-web-loader"
         initial={{ opacity: 1 }}
         animate={{
-          opacity: phase === 'zooming' ? [1, 1, 0] : 1,
+          opacity: phase === 'zooming' ? [1, 0.85, 0] : 1,
         }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.7, ease: [0.76, 0, 0.24, 1] }}
+        transition={{ duration: 0.65, ease: [0.25, 0.1, 0.25, 1] }}
         className="fixed inset-0 z-[9999] bg-[#04050A] flex flex-col items-center justify-center overflow-hidden select-none"
       >
         {/* Deep ambient background */}
@@ -238,9 +241,9 @@ export const SpiderWebLoader: React.FC<SpiderWebLoaderProps> = ({ onComplete }) 
           animate={
             phase === 'zooming'
               ? {
-                  scale: [1, 3.5, 24],
-                  rotateZ: [0, -6, 18],
-                  opacity: [1, 0.9, 0],
+                  scale: [1, 2.4, 6.5],
+                  rotateZ: [0, -3, 6],
+                  opacity: [1, 0.85, 0],
                 }
               : {
                   scale: [0.97, 1.03, 0.97],
@@ -248,10 +251,10 @@ export const SpiderWebLoader: React.FC<SpiderWebLoaderProps> = ({ onComplete }) 
           }
           transition={
             phase === 'zooming'
-              ? { duration: 0.78, ease: [0.7, 0, 0.84, 0] }
+              ? { duration: 0.62, ease: [0.25, 0.1, 0.25, 1] }
               : { duration: 4, repeat: Infinity, ease: 'easeInOut' }
           }
-          className="relative w-[340px] sm:w-[480px] md:w-[600px] h-[340px] sm:h-[480px] md:h-[600px] flex items-center justify-center origin-center"
+          className="relative w-[340px] sm:w-[480px] md:w-[600px] h-[340px] sm:h-[480px] md:h-[600px] flex items-center justify-center origin-center will-change-transform"
         >
           {/* Realistic Physics Canvas Spider Web */}
           <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-auto cursor-pointer" />
